@@ -1,0 +1,28 @@
+@media(max-width:1200px){
+    .stats-grid{ grid-template-columns:repeat(2,1fr); }
+    .dashboard-grid{ grid-template-columns:1fr; }
+    .clientes-container{ flex-direction:column; }
+    .clientes-list-panel{ width:100%; min-width:unset; }
+    .rel-summary{ grid-template-columns:repeat(3,1fr); }
+    .rel-grid{ grid-template-columns:1fr; }
+}
+@media(max-width:768px){
+    .sidebar{ width:80px; }
+    .menu-title, .sidebar-footer div{ display:none; }
+    .main{ margin-left:80px; }
+    .stats-grid{ grid-template-columns:1fr; }
+    .logo-img{ max-width:50px; }
+    .content{ padding:20px; }
+    .clientes-list-panel{ min-width:unset; }
+    .cliente-detail{ min-height:300px; }
+    .detail-grid{ grid-template-columns:1fr; }
+    .rel-summary{ grid-template-columns:1fr 1fr; }
+    .rel-fin-grid{ grid-template-columns:1fr; }
+    .pag-summary, .pag-fin-summary{ grid-template-columns:repeat(2,1fr); }
+    .pag-grid{ grid-template-columns:1fr; }
+    .agenda-container{ grid-template-columns:1fr; }
+    .pag-fin-grid{ grid-template-columns:1fr; }
+}
+@media(max-width:480px){
+    .pag-summary, .pag-fin-summary{ grid-template-columns:1fr; }
+}

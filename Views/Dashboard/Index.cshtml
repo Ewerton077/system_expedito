@@ -1,0 +1,96 @@
+@{
+    ViewBag.Title = "Dashboard";
+    var hojeAgendamentos = ViewBag.AgendamentosHoje as List<SantoExpedito.Models.Agendamento> ?? new();
+    var vencimentos = ViewBag.Vencimentos as List<SantoExpedito.Models.Vencimento> ?? new();
+    var hoje = DateTime.Now;
+    var hojeStr = $"{hoje.Day:D2}/{hoje.Month:D2}/{hoje.Year}";
+}
+
+<div class="page active" id="dashboard">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-users"></i></div>
+            <div class="stat-info"><span>Clientes Ativos</span><h3>@ViewBag.TotalClientes</h3></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-paw"></i></div>
+            <div class="stat-info"><span>Pets Cadastrados</span><h3>@ViewBag.TotalPets</h3></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-calendar"></i></div>
+            <div class="stat-info"><span>Planos Mensais</span><h3>@ViewBag.PlanosMensais</h3></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-calendar-time"></i></div>
+            <div class="stat-info"><span>Planos Quinzenais</span><h3>@ViewBag.PlanosQuinzenais</h3></div>
+        </div>
+        <div class="stat-card danger">
+            <div class="stat-icon"><i class="ti ti-alert-circle"></i></div>
+            <div class="stat-info"><span>Pagamentos Atrasados</span><h3>@ViewBag.PagamentosAtrasados</h3></div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header"><h2>Resumo de Planos</h2></div>
+            <canvas id="plansChart"></canvas>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>Pagamentos</h2></div>
+            <canvas id="paymentsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header"><h2>Banhos Agendados Hoje (@hojeStr)</h2></div>
+            <table>
+                <thead><tr><th>Horário</th><th>Pet</th><th>Tutor</th><th>Plano</th></tr></thead>
+                <tbody>
+                    @if (hojeAgendamentos.Count == 0)
+                    {
+                        <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum banho pendente para hoje</td></tr>
+                    }
+                    @foreach (var a in hojeAgendamentos)
+                    {
+                        <tr><td>@a.Horario</td><td>@a.Pet</td><td>@a.Tutor</td><td>@a.Plano</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>Próximos Vencimentos</h2></div>
+            <table>
+                <thead><tr><th>Cliente</th><th>Plano</th><th>Vencimento</th></tr></thead>
+                <tbody>
+                    @foreach (var v in vencimentos)
+                    {
+                        <tr><td>@v.Cliente</td><td>@v.Plano</td><td>@v.VencimentoData</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+new Chart(document.getElementById('plansChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Mensal', 'Quinzenal'],
+        datasets: [{ data: [@ViewBag.PlanosMensais, @ViewBag.PlanosQuinzenais], backgroundColor: ['#E8321A', '#F5A89A'] }]
+    },
+    options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#4A4440', font: { size: 13 }, padding: 16, usePointStyle: true, pointStyle: 'circle' } } } }
+});
+
+new Chart(document.getElementById('paymentsChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Pagos', 'Pendentes', 'Atrasados'],
+        datasets: [{ data: [@ViewBag.PagamentosPagos, @ViewBag.PagamentosPendentes, 0], backgroundColor: ['#E8321A', '#F5A89A', '#B82510'], borderRadius: 6, borderSkipped: false, maxBarThickness: 50 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#A09890' }, grid: { color: 'rgba(0,0,0,.06)' } }, x: { ticks: { color: '#4A4440', font: { size: 12 } }, grid: { display: false } } } }
+});
+</script>
+}

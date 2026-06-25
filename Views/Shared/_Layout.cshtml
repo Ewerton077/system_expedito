@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sto Expedito | Sistema de Gestão</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="~/css/variables.css">
+    <link rel="stylesheet" href="~/css/layout.css">
+    <link rel="stylesheet" href="~/css/components.css">
+    <link rel="stylesheet" href="~/css/dashboard.css">
+    <link rel="stylesheet" href="~/css/responsive.css">
+    <link rel="stylesheet" href="~/css/forms.css">
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="logo" id="logoBtn">
+        <img src="~/imgs/logo.svg" alt="Sto Expedito" class="logo-img">
+    </div>
+    <nav class="sidebar-nav">
+        <span class="menu-title">Principal</span>
+        <button class="nav-item active" data-page="dashboard" onclick="location.href='@Url.Action("Index","Dashboard")'">
+            <i class="ti ti-layout-dashboard"></i>
+            Dashboard
+        </button>
+        <span class="menu-title">Cadastros</span>
+        <button class="nav-item" data-page="clientes" onclick="location.href='@Url.Action("Index","Clientes")'">
+            <i class="ti ti-users"></i>
+            Clientes
+        </button>
+        <button class="nav-item" data-page="pets" onclick="location.href='@Url.Action("Index","Pets")'">
+            <i class="ti ti-paw"></i>
+            Pets
+        </button>
+        <span class="menu-title">Operações</span>
+        <button class="nav-item" data-page="agendamentos" onclick="location.href='@Url.Action("Index","Agendamentos")'">
+            <i class="ti ti-calendar-event"></i>
+            Agendamentos
+        </button>
+        <button class="nav-item" data-page="pagamentos" onclick="location.href='@Url.Action("Index","Pagamentos")'">
+            <i class="ti ti-cash"></i>
+            Pagamentos
+        </button>
+        <span class="menu-title">Análises</span>
+        <button class="nav-item" data-page="relatorios" onclick="location.href='@Url.Action("Index","Relatorios")'">
+            <i class="ti ti-chart-bar"></i>
+            Relatórios
+        </button>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="avatar">AD</div>
+        <div>
+            <strong>Administrador</strong>
+            <span>Sistema</span>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <header class="topbar">
+        <div class="topbar-title">
+            <h1 id="pageTitle">@(ViewBag.Title ?? "Dashboard")</h1>
+            <p>Gestão completa do banho e tosa</p>
+        </div>
+        <div class="topbar-actions">
+            <a href="@Url.Action("Logout","Login")" class="btn-secondary" style="text-decoration:none;font-size:12px;padding:8px 14px;">
+                <i class="ti ti-logout"></i> Sair
+            </a>
+            <button class="icon-btn">
+                <i class="ti ti-bell"></i>
+                <span class="notification-dot"></span>
+            </button>
+        </div>
+    </header>
+    <section class="content">
+        @RenderBody()
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="~/js/site.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

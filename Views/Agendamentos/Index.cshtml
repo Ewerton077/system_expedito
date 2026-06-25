@@ -1,0 +1,154 @@
+@{
+    ViewBag.Title = "Agendamentos";
+    var hoje = DateTime.Now;
+    var hojeStr = $"{hoje.Day:D2}/{hoje.Month:D2}/{hoje.Year}";
+}
+
+<div class="page active" id="agendamentos">
+    <div class="page-header"><h2>Agendamentos</h2></div>
+    <div class="agenda-container">
+        <div class="card agenda-cal-card">
+            <div class="agenda-cal-header">
+                <button class="agenda-nav" id="agendaPrev"><i class="ti ti-chevron-left"></i></button>
+                <h3 id="agendaMonthTitle"></h3>
+                <button class="agenda-nav" id="agendaNext"><i class="ti ti-chevron-right"></i></button>
+            </div>
+            <div class="agenda-dias-semana"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+            <div class="agenda-grid" id="agendaGrid"></div>
+        </div>
+        <div class="card agenda-list-card">
+            <div class="card-header"><h2 id="agendaSelectedTitle"><i class="ti ti-calendar-event" style="color:var(--red)"></i> Agendamentos do Dia</h2></div>
+            <div class="agenda-list" id="agendaList"><div class="detail-empty"><i class="ti ti-calendar"></i><p>Selecione um dia</p></div></div>
+            <div class="agenda-detail" id="agendaDetail" style="display:none">
+                <div class="agenda-detail-header"><button class="agenda-detail-back" id="agendaDetailBack"><i class="ti ti-arrow-left"></i> Voltar</button></div>
+                <div class="agenda-detail-body" id="agendaDetailBody"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let agendamentosData = [];
+let agendaMes = new Date().getMonth();
+let agendaAno = new Date().getFullYear();
+let agendaDiaSelecionado = null;
+let agendaDataAtual = null;
+
+function carregarAgendamentos() {
+    fetch('@Url.Action("Listar","Agendamentos")')
+        .then(r => r.json())
+        .then(data => { agendamentosData = data; renderizarCalendario(agendaMes, agendaAno); });
+}
+
+function renderizarCalendario(mes, ano) {
+    const grid = document.getElementById('agendaGrid');
+    const title = document.getElementById('agendaMonthTitle');
+    if (!grid || !title) return;
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    title.textContent = `${meses[mes]} ${ano}`;
+    const primeiroDia = new Date(ano, mes, 1).getDay();
+    const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+    const ultimoDiaMesAnt = new Date(ano, mes, 0).getDate();
+    const diasComAgenda = {};
+    agendamentosData.forEach(a => { if (a.status !== 'Removido') diasComAgenda[a.data] = true; });
+    let html = '';
+    const diasMesAnt = primeiroDia === 0 ? 0 : primeiroDia;
+    for (let i = diasMesAnt - 1; i >= 0; i--) {
+        const dia = ultimoDiaMesAnt - i;
+        html += `<button class="agenda-dia outro-mes">${dia}</button>`;
+    }
+    for (let d = 1; d <= ultimoDia; d++) {
+        const data = `${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}/${ano}`;
+        const temAgenda = diasComAgenda[data] ? 'tem-agenda' : '';
+        const isSelected = agendaDiaSelecionado === data ? 'selected' : '';
+        html += `<button class="agenda-dia ${temAgenda} ${isSelected}" data-data="${data}">${d}</button>`;
+    }
+    const totalCelulas = diasMesAnt + ultimoDia;
+    const resto = (7 - (totalCelulas % 7)) % 7;
+    for (let d = 1; d <= resto; d++) {
+        html += `<button class="agenda-dia outro-mes">${d}</button>`;
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('.agenda-dia:not(.outro-mes)').forEach(btn => {
+        btn.addEventListener('click', () => {
+            agendaDiaSelecionado = btn.dataset.data;
+            renderizarCalendario(mes, ano);
+            renderizarAgendaDia(agendaDiaSelecionado);
+        });
+    });
+    if (!agendaDiaSelecionado) {
+        renderizarAgendaDia('@hojeStr');
+        agendaDiaSelecionado = '@hojeStr';
+        renderizarCalendario(mes, ano);
+    }
+}
+
+function renderizarAgendaDia(data) {
+    const list = document.getElementById('agendaList');
+    const detail = document.getElementById('agendaDetail');
+    const title = document.getElementById('agendaSelectedTitle');
+    if (!list || !detail || !title) return;
+    agendaDataAtual = data;
+    detail.style.display = 'none';
+    list.style.display = 'block';
+    const doDia = agendamentosData.filter(a => a.data === data && a.status !== 'Removido');
+    if (doDia.length === 0) {
+        list.innerHTML = `<div class="detail-empty" style="height:200px"><i class="ti ti-calendar-off"></i><p>Nenhum agendamento neste dia</p></div>`;
+        title.innerHTML = `<i class="ti ti-calendar-event" style="color:var(--red)"></i> ${data}`;
+        return;
+    }
+    title.innerHTML = `<i class="ti ti-calendar-event" style="color:var(--red)"></i> ${data} (${doDia.length} agendamento${doDia.length > 1 ? 's' : ''})`;
+    list.innerHTML = doDia.map((a, idx) => {
+        const tagClass = a.plano === 'Mensal' ? 'mensal' : 'quinzenal';
+        const statusClass = a.status === 'Em espera' ? 'espera' : a.status === 'Em processo' ? 'processo' : 'concluido';
+        return `<div class="agenda-list-item"><div class="agenda-list-time">${a.horario}</div><div class="agenda-list-info"><strong class="agenda-list-pet" data-agenda-idx="${idx}">${a.pet}</strong><span>${a.tutor}</span></div><span class="agenda-list-status ${statusClass}">${a.status}</span><span class="agenda-list-plano ${tagClass}">${a.plano}</span></div>`;
+    }).join('');
+    list.querySelectorAll('.agenda-list-pet').forEach(el => el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.agendaIdx);
+        mostrarDetalheAgendamento(doDia[idx]);
+    }));
+}
+
+function mostrarDetalheAgendamento(ag) {
+    const list = document.getElementById('agendaList');
+    const detail = document.getElementById('agendaDetail');
+    const body = document.getElementById('agendaDetailBody');
+    const title = document.getElementById('agendaSelectedTitle');
+    if (!list || !detail || !body) return;
+    list.style.display = 'none';
+    detail.style.display = 'block';
+    title.innerHTML = `<i class="ti ti-paw" style="color:var(--red)"></i> ${ag.pet}`;
+    const iniciais = ag.pet.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+    const statusClass = ag.status === 'Em espera' ? 'espera' : ag.status === 'Em processo' ? 'processo' : ag.status === 'Concluído' ? 'concluido' : 'espera';
+    body.innerHTML = `
+        <div class="detail-header"><div class="avatar-letter">${iniciais}</div><div class="detail-header-info"><h3>${ag.pet}</h3><span>${ag.plano}</span></div></div>
+        <div class="detail-grid">
+            <div class="detail-field"><label>Tutor</label><p>${ag.tutor}</p></div>
+            <div class="detail-field"><label>Horário</label><p>${ag.horario}</p></div>
+            <div class="detail-field"><label>Plano</label><p>${ag.plano}</p></div>
+            <div class="detail-field"><label>Status</label><p><span class="agenda-list-status ${statusClass}">${ag.status}</span></p></div>
+        </div>
+        <div class="agenda-status-actions">
+            <form method="post" action="@Url.Action("AtualizarStatus","Agendamentos")" style="display:contents">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="${ag.id}">
+                <button type="submit" name="status" value="Em espera" class="agenda-status-btn ${ag.status === 'Em espera' ? 'active-espera' : ''}"><i class="ti ti-clock"></i> Em espera</button>
+                <button type="submit" name="status" value="Em processo" class="agenda-status-btn ${ag.status === 'Em processo' ? 'active-processo' : ''}"><i class="ti ti-refresh"></i> Em processo</button>
+                <button type="submit" name="status" value="Concluído" class="agenda-status-btn ${ag.status === 'Concluído' ? 'active-concluido' : ''}"><i class="ti ti-circle-check"></i> Concluído</button>
+                <button type="submit" name="status" value="Removido" class="agenda-status-btn remover-btn" onclick="return confirm('Remover este agendamento?')"><i class="ti ti-x"></i> Remover</button>
+            </form>
+        </div>`;
+}
+
+document.getElementById('agendaPrev').addEventListener('click', () => { agendaMes--; if (agendaMes < 0) { agendaMes = 11; agendaAno--; } renderizarCalendario(agendaMes, agendaAno); });
+document.getElementById('agendaNext').addEventListener('click', () => { agendaMes++; if (agendaMes > 11) { agendaMes = 0; agendaAno++; } renderizarCalendario(agendaMes, agendaAno); });
+document.getElementById('agendaDetailBack').addEventListener('click', () => {
+    document.getElementById('agendaList').style.display = 'block';
+    document.getElementById('agendaDetail').style.display = 'none';
+    if (agendaDataAtual) renderizarAgendaDia(agendaDataAtual);
+});
+
+carregarAgendamentos();
+</script>
+}

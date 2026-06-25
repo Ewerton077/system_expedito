@@ -1,0 +1,95 @@
+@{
+    ViewBag.Title = "Relatórios";
+    var clientes = ViewBag.Clientes as List<SantoExpedito.Models.Cliente> ?? new();
+    var pets = ViewBag.Pets as List<SantoExpedito.Models.Pet> ?? new();
+}
+
+<div class="page active" id="relatorios">
+    <div class="page-header">
+        <h2>Relatórios</h2>
+        <button class="btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Gerar Relatório</button>
+    </div>
+
+    <div class="rel-summary" id="relSummary"></div>
+
+    <div class="rel-grid">
+        <div class="card">
+            <div class="card-header"><h2><i class="ti ti-users" style="color:var(--red)"></i> Clientes</h2></div>
+            <div class="rel-section-body">
+                <div class="rel-stats-row">
+                    <div class="rel-stat"><span>Total</span><strong>@ViewBag.TotalClientes</strong></div>
+                    <div class="rel-stat"><span>Mensal</span><strong>@ViewBag.ClientesMensal</strong></div>
+                    <div class="rel-stat"><span>Quinzenal</span><strong>@ViewBag.ClientesQuinzenal</strong></div>
+                </div>
+                <div class="rel-table-wrap">
+                    <table><thead><tr><th>Nome</th><th>Telefone</th><th>Plano</th><th>Valor</th></tr></thead>
+                    <tbody>
+                        @foreach (var c in clientes)
+                        {
+                            <tr><td>@c.Nome</td><td>@c.Telefone</td><td>@c.Plano</td><td>R$ @c.Valor.ToString("F2")</td></tr>
+                        }
+                    </tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2><i class="ti ti-paw" style="color:var(--red)"></i> Pets</h2></div>
+            <div class="rel-section-body">
+                <div class="rel-stats-row">
+                    <div class="rel-stat"><span>Total</span><strong>@ViewBag.TotalPets</strong></div>
+                    <div class="rel-stat"><span>Pequeno</span><strong>@ViewBag.PetsPequeno</strong></div>
+                    <div class="rel-stat"><span>Médio</span><strong>@ViewBag.PetsMedio</strong></div>
+                    <div class="rel-stat"><span>Grande</span><strong>@ViewBag.PetsGrande</strong></div>
+                </div>
+                <div class="rel-chart-wrap"><canvas id="relPetsChart"></canvas></div>
+                <div class="rel-table-wrap"><table><thead><tr><th>Pet</th><th>Raça</th><th>Porte</th><th>Tutor</th></tr></thead>
+                    <tbody>
+                        @foreach (var p in pets)
+                        {
+                            <tr><td>@p.Nome</td><td>@p.Raca</td><td>@p.Porte</td><td>@p.Tutor</td></tr>
+                        }
+                    </tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2><i class="ti ti-coin" style="color:var(--red)"></i> Planos & Financeiro</h2></div>
+            <div class="rel-section-body">
+                <div class="rel-stats-row">
+                    <div class="rel-stat"><span>Mensais</span><strong>@ViewBag.ClientesMensal</strong></div>
+                    <div class="rel-stat"><span>Quinzenais</span><strong>@ViewBag.ClientesQuinzenal</strong></div>
+                    <div class="rel-stat"><span>Receita Mensal</span><strong style="color:var(--red)">R$ @ViewBag.ReceitaMensal.ToString("F2")</strong></div>
+                    <div class="rel-stat"><span>Receita Quinzenal</span><strong style="color:var(--red)">R$ @ViewBag.ReceitaQuinzenal.ToString("F2")</strong></div>
+                </div>
+                <div class="rel-fin-grid">
+                    <div class="rel-chart-wrap"><canvas id="relPlanosChart"></canvas></div>
+                    <div class="rel-chart-wrap"><canvas id="relFinanceiroChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+new Chart(document.getElementById('relPetsChart'), {
+    type: 'doughnut',
+    data: { labels: ['Pequeno', 'Médio', 'Grande'], datasets: [{ data: [@ViewBag.PetsPequeno, @ViewBag.PetsMedio, @ViewBag.PetsGrande], backgroundColor: ['#F5A89A', '#E8321A', '#B82510'], borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { color: '#4A4440', font: { size: 12 }, padding: 12, usePointStyle: true, pointStyle: 'circle' } } } }
+});
+
+new Chart(document.getElementById('relPlanosChart'), {
+    type: 'doughnut',
+    data: { labels: ['Mensal', 'Quinzenal'], datasets: [{ data: [@ViewBag.ClientesMensal, @ViewBag.ClientesQuinzenal], backgroundColor: ['#E8321A', '#F5A89A'], borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { color: '#4A4440', font: { size: 12 }, padding: 12, usePointStyle: true, pointStyle: 'circle' } } } }
+});
+
+new Chart(document.getElementById('relFinanceiroChart'), {
+    type: 'bar',
+    data: { labels: ['Mensal', 'Quinzenal'], datasets: [{ label: 'Receita', data: [@ViewBag.ReceitaMensal.ToString("F2"), @ViewBag.ReceitaQuinzenal.ToString("F2")], backgroundColor: ['#E8321A', '#F5A89A'], borderRadius: 6, borderSkipped: false, maxBarThickness: 60 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#A09890', callback: v => 'R$ ' + v.toFixed(2) }, grid: { color: 'rgba(0,0,0,.06)' } }, x: { ticks: { color: '#4A4440', font: { size: 12 } }, grid: { display: false } } } }
+});
+</script>
+}

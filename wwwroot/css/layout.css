@@ -1,0 +1,27 @@
+*{ margin:0; padding:0; box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ background:var(--bg); color:var(--text); font-family:var(--font-body); min-height:100vh; display:flex; }
+::-webkit-scrollbar{ width:8px; }
+::-webkit-scrollbar-thumb{ background:var(--border); border-radius:20px; }
+.sidebar{ width:var(--sidebar-width); background:var(--sidebar-bg); position:fixed; top:0; left:0; bottom:0; display:flex; flex-direction:column; z-index:100; }
+.logo{ display:flex; align-items:center; justify-content:center; padding:24px; border-bottom:1px solid rgba(255,255,255,.08); cursor:pointer; }
+.logo-img{ width:100%; max-width:160px; height:auto; display:block; }
+.sidebar-nav{ flex:1; display:flex; flex-direction:column; padding:20px 0; }
+.menu-title{ padding:12px 24px; font-size:11px; color:rgba(255,255,255,.30); text-transform:uppercase; letter-spacing:1px; }
+.nav-item{ border:none; background:none; color:var(--sidebar-text); display:flex; align-items:center; gap:12px; padding:14px 24px; cursor:pointer; transition:var(--transition); font-size:14px; width:100%; text-align:left; }
+.nav-item:hover{ background:var(--sidebar-hover); color:white; }
+.nav-item.active{ background:var(--sidebar-active); color:white; border-left:3px solid var(--red); }
+.sidebar-footer{ padding:20px; display:flex; gap:12px; align-items:center; border-top:1px solid rgba(255,255,255,.08); }
+.avatar{ width:40px; height:40px; border-radius:50%; background:var(--red); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.sidebar-footer strong{ color:white; display:block; font-size:13px; }
+.sidebar-footer span{ color:rgba(255,255,255,.40); font-size:11px; }
+.main{ margin-left:var(--sidebar-width); width:100%; min-height:100vh; }
+.topbar{ height:var(--topbar-height); background:var(--surface); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; padding:0 30px; position:sticky; top:0; z-index:50; }
+.topbar-title h1{ font-family:var(--font-title); font-size:22px; }
+.topbar-title p{ color:var(--text-muted); font-size:13px; }
+.topbar-actions{ display:flex; gap:10px; align-items:center; }
+.icon-btn{ width:42px; height:42px; border-radius:10px; border:1px solid var(--border); background:var(--surface); cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative; transition:var(--transition); }
+.icon-btn:hover{ background:var(--surface-2); }
+.notification-dot{ width:8px; height:8px; border-radius:50%; background:var(--red); position:absolute; top:10px; right:10px; }
+.content{ padding:var(--content-padding); }
+.page{ display:block; }

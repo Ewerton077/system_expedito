@@ -1,0 +1,164 @@
+@{
+    ViewBag.Title = "Clientes";
+    var clientes = ViewBag.Clientes as List<SantoExpedito.Models.Cliente> ?? new();
+    var planoAtivo = ViewBag.PlanoAtivo as string ?? "Mensal";
+    var clienteDetalhe = ViewBag.ClienteDetalhe as SantoExpedito.Models.Cliente;
+    var clienteEdit = ViewBag.ClienteEdit as SantoExpedito.Models.Cliente;
+    var filtrados = clientes.Where(c => c.Plano == planoAtivo).ToList();
+}
+
+<div class="page active" id="clientes">
+    <div class="page-header">
+        <h2>Clientes</h2>
+        <a class="btn-primary" href="@Url.Action("Index","Cadastro")">
+            <i class="ti ti-plus"></i> Novo Cliente
+        </a>
+    </div>
+    <div class="clientes-container">
+        <div class="clientes-list-panel">
+            <div class="clientes-tabs">
+                <a class="tab-btn @(planoAtivo == "Mensal" ? "active" : "")"
+                   href="@Url.Action("Index", new { plano = "Mensal" })">Mensal</a>
+                <a class="tab-btn @(planoAtivo == "Quinzenal" ? "active" : "")"
+                   href="@Url.Action("Index", new { plano = "Quinzenal" })">Quinzenal</a>
+            </div>
+            <div class="clientes-items">
+                @if (filtrados.Count == 0)
+                {
+                    <div class="detail-empty" style="height:200px">
+                        <p>Nenhum cliente @planoAtivo.ToLower()</p>
+                    </div>
+                }
+                @foreach (var c in filtrados)
+                {
+                    var iniciais = string.Concat(c.Nome.Split(' ').Select(p => p.Length > 0 ? p[0].ToString() : "")).ToUpper();
+                    if (iniciais.Length > 2) iniciais = iniciais[..2];
+                    var tagClass = c.Plano == "Mensal" ? "mensal" : "quinzenal";
+                    var isSelected = clienteDetalhe?.Id == c.Id || clienteEdit?.Id == c.Id;
+                    <div class="cliente-item @(isSelected ? "active" : "")"
+                         onclick="location.href='@Url.Action("Index", new { plano = planoAtivo, detalheId = c.Id })'">
+                        <div class="avatar-letter">@iniciais</div>
+                        <div class="cliente-item-info">
+                            <strong>@c.Nome</strong>
+                            <span>@c.PetNome • @c.Telefone</span>
+                        </div>
+                        <span class="tag-plano @tagClass">@c.Plano</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="cliente-detail" id="clienteDetail">
+            @if (clienteEdit != null)
+            {
+                var c = clienteEdit;
+                var iniciais = string.Concat(c.Nome.Split(' ').Select(p => p.Length > 0 ? p[0].ToString() : "")).ToUpper();
+                if (iniciais.Length > 2) iniciais = iniciais[..2];
+                <div class="detail-content">
+                    <form method="post" action="@Url.Action("Salvar", "Clientes")">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@c.Id" />
+                        <div class="detail-header">
+                            <div class="avatar-letter">@iniciais</div>
+                            <div class="detail-header-info"><h2>Editando: @c.Nome</h2><span>Altere os campos abaixo</span></div>
+                        </div>
+                        <div class="detail-grid">
+                            <div class="detail-field full"><label>Nome</label><input type="text" class="form-control" name="nome" value="@c.Nome" required></div>
+                            <div class="detail-field"><label>Telefone</label><input type="text" class="form-control" name="telefone" value="@c.Telefone"></div>
+                            <div class="detail-field"><label>Endereço</label><input type="text" class="form-control" name="endereco" value="@c.Endereco"></div>
+                            <div class="detail-field"><label>Pet</label><input type="text" class="form-control" name="petNome" value="@c.PetNome"></div>
+                            <div class="detail-field"><label>Raça</label><input type="text" class="form-control" name="petRaca" value="@c.PetRaca"></div>
+                            <div class="detail-field">
+                                <label>Porte</label>
+                                <select class="form-control" name="porte">
+                                    <option value="Pequeno" selected="@(c.Porte == "Pequeno")">Pequeno</option>
+                                    <option value="Médio" selected="@(c.Porte == "Médio")">Médio</option>
+                                    <option value="Grande" selected="@(c.Porte == "Grande")">Grande</option>
+                                </select>
+                            </div>
+                            <div class="detail-field">
+                                <label>Plano</label>
+                                <select class="form-control" name="plano">
+                                    <option value="Mensal" selected="@(c.Plano == "Mensal")">Mensal</option>
+                                    <option value="Quinzenal" selected="@(c.Plano == "Quinzenal")">Quinzenal</option>
+                                </select>
+                            </div>
+                            <div class="detail-field"><label>Banhos Restantes</label><input type="number" class="form-control" name="banhosRestantes" value="@c.BanhosRestantes" min="0"></div>
+                            <div class="detail-field">
+                                <label>Taxidog</label>
+                                <select class="form-control" name="taxidog">
+                                    <option value="true" selected="@(c.Taxidog)">Incluso</option>
+                                    <option value="false" selected="@(!c.Taxidog)">Não incluso</option>
+                                </select>
+                            </div>
+                            <div class="detail-field">
+                                <label>Tosa</label>
+                                <select class="form-control" name="tosa">
+                                    <option value="true" selected="@(c.Tosa)">Incluso</option>
+                                    <option value="false" selected="@(!c.Tosa)">Não incluso</option>
+                                </select>
+                            </div>
+                            <div class="detail-field full"><label>Valor (R$)</label><input type="number" class="form-control" name="valor" value="@c.Valor.ToString("F2")" step="0.01"></div>
+                            <div class="detail-field"><label>Ração</label><input type="text" class="form-control" name="petRacao" value="@c.PetRacao"></div>
+                            <div class="detail-field"><label>Vermifugação</label><input type="date" class="form-control" name="petVermifugacao" value="@c.PetVermifugacao"></div>
+                            <div class="detail-field"><label>Antipulgas</label><input type="date" class="form-control" name="petAntipulgas" value="@c.PetAntipulgas"></div>
+                            <div class="detail-field"><label>Vacinação</label><input type="date" class="form-control" name="petVacinacao" value="@c.PetVacinacao"></div>
+                            <div class="detail-field"><label>CPF</label><input type="text" class="form-control" name="cpf" value="@c.Cpf"></div>
+                            <div class="detail-field"><label>Email</label><input type="email" class="form-control" name="email" value="@c.Email"></div>
+                            <div class="detail-field"><label>Idade do Pet</label><input type="text" class="form-control" name="petIdade" value="@c.PetIdade"></div>
+                            <div class="detail-field full"><label>Dias de Banho</label><input type="text" class="form-control" name="diasBanho" value="@c.DiasBanho" placeholder="Segunda,Terça,Quarta"></div>
+                            <div class="detail-field full"><label>Datas de Banho</label><input type="text" class="form-control" name="datasBanho" value="@c.DatasBanho" placeholder="01/06/2026,08/06/2026"></div>
+                        </div>
+                        <div class="detail-actions">
+                            <a class="btn-secondary" href="@Url.Action("Index", new { plano = planoAtivo, detalheId = c.Id })">Cancelar</a>
+                            <button type="submit" class="btn-primary"><i class="ti ti-device-floppy"></i> Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            }
+            else if (clienteDetalhe != null)
+            {
+                var c = clienteDetalhe;
+                var iniciais = string.Concat(c.Nome.Split(' ').Select(p => p.Length > 0 ? p[0].ToString() : "")).ToUpper();
+                if (iniciais.Length > 2) iniciais = iniciais[..2];
+                var taxidogHtml = c.Taxidog ? "<span class=\"tag-yes\">Incluso</span>" : "<span class=\"tag-no\">Não incluso</span>";
+                var tosaHtml = c.Tosa ? "<span class=\"tag-yes\">Incluso</span>" : "<span class=\"tag-no\">Não incluso</span>";
+                var banhosStatus = c.BanhosRestantes > 0 ? $"{c.BanhosRestantes} banho{(c.BanhosRestantes > 1 ? "s" : "")} restante{(c.BanhosRestantes > 1 ? "s" : "")}" : "Sem banhos restantes";
+                var diasBanhoHtml = !string.IsNullOrEmpty(c.DiasBanho) ? string.Join(", ", c.DiasBanho.Split(',')) : "Não definido";
+                var datasBanhoHtml = !string.IsNullOrEmpty(c.DatasBanho) ? string.Join(", ", c.DatasBanho.Split(',')) : "Nenhuma data selecionada";
+                <div class="detail-content">
+                    <div class="detail-header">
+                        <div class="avatar-letter">@iniciais</div>
+                        <div class="detail-header-info"><h2>@c.Nome</h2><span>@c.Plano • @c.PetRaca</span></div>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-field"><label>Telefone</label><p>@c.Telefone</p></div>
+                        <div class="detail-field"><label>Endereço</label><p>@c.Endereco</p></div>
+                        <div class="detail-field"><label>Pet</label><p>@c.PetNome (@c.Porte)</p></div>
+                        <div class="detail-field"><label>Raça</label><p>@c.PetRaca</p></div>
+                        <div class="detail-field"><label>Banhos Restantes</label><p>@banhosStatus</p></div>
+                        <div class="detail-field"><label>Dias de Banho</label><p>@diasBanhoHtml</p></div>
+                        <div class="detail-field"><label>Datas de Banho</label><p>@datasBanhoHtml</p></div>
+                        <div class="detail-field"><label>Taxidog</label><p>@Html.Raw(taxidogHtml)</p></div>
+                        <div class="detail-field"><label>Tosa</label><p>@Html.Raw(tosaHtml)</p></div>
+                        <div class="detail-field full"><label>Valor do Plano</label><p style="font-size:22px;font-weight:700;color:var(--red)">R$ @c.Valor.ToString("F2")</p></div>
+                    </div>
+                    <div class="detail-actions">
+                        <a class="btn-secondary" href="@Url.Action("Index", new { plano = planoAtivo, editId = c.Id })"><i class="ti ti-pencil"></i> Editar Cliente</a>
+                        <form method="post" action="@Url.Action("Excluir", "Clientes")" style="display:inline" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?')">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <button type="submit" class="btn-danger"><i class="ti ti-trash"></i> Excluir Cliente</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="detail-empty">
+                    <i class="ti ti-users"></i>
+                    <p>Selecione um cliente</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

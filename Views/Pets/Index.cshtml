@@ -1,0 +1,63 @@
+@model List<SantoExpedito.Models.Pet>
+@{
+    ViewBag.Title = "Pets";
+    var clientes = ViewBag.Clientes as List<SantoExpedito.Models.Cliente> ?? new();
+    var petDetalhe = ViewBag.PetDetalhe as SantoExpedito.Models.Pet;
+}
+
+<div class="page active" id="pets">
+    <div class="page-header">
+        <h2>Pets</h2>
+    </div>
+    <div class="clientes-container">
+        <div class="clientes-list-panel" style="width:380px;min-width:380px">
+            <div class="card" style="border:none;box-shadow:none;margin:0">
+                <table>
+                    <thead><tr><th>Pet</th><th>Raça</th><th>Porte</th></tr></thead>
+                    <tbody>
+                        @foreach (var pet in Model)
+                        {
+                            var isSelected = petDetalhe?.Id == pet.Id;
+                            <tr class="@(isSelected ? "active" : "")"
+                                onclick="location.href='@Url.Action("Index", new { detalheId = pet.Id })'">
+                                <td>@pet.Nome</td>
+                                <td>@pet.Raca</td>
+                                <td>@pet.Porte</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="cliente-detail" id="petDetail">
+            @if (petDetalhe != null)
+            {
+                var p = petDetalhe;
+                var tutorCliente = clientes.FirstOrDefault(cl => cl.Nome == p.Tutor && cl.PetNome == p.Nome);
+                var iniciais = string.Concat(p.Nome.Split(' ').Select(pal => pal.Length > 0 ? pal[0].ToString() : "")).ToUpper();
+                if (iniciais.Length > 2) iniciais = iniciais[..2];
+                <div class="detail-content">
+                    <div class="detail-header">
+                        <div class="avatar-letter">@iniciais</div>
+                        <div class="detail-header-info"><h2>@p.Nome</h2><span>@p.Raca • @p.Porte</span></div>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-field"><label>Tutor</label><p>@p.Tutor</p></div>
+                        @if (tutorCliente != null)
+                        {
+                            <div class="detail-field"><label>Telefone</label><p>@tutorCliente.Telefone</p></div>
+                        }
+                        <div class="detail-field full"><label>Ração</label><p>@(!string.IsNullOrEmpty(p.Racao) ? p.Racao : "Não informado")</p></div>
+                        <div class="detail-field"><label>Última Vermifugação</label><p>@(!string.IsNullOrEmpty(p.Vermifugacao) ? p.Vermifugacao : "Não registrado")</p></div>
+                        <div class="detail-field"><label>Última Antipulgas</label><p>@(!string.IsNullOrEmpty(p.Antipulgas) ? p.Antipulgas : "Não registrado")</p></div>
+                        <div class="detail-field full"><label>Última Vacinação</label><p>@(!string.IsNullOrEmpty(p.Vacinacao) ? p.Vacinacao : "Não registrado")</p></div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="detail-empty"><i class="ti ti-paw"></i><p>Selecione um pet</p></div>
+            }
+        </div>
+    </div>
+</div>
