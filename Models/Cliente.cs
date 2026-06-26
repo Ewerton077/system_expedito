@@ -61,6 +61,9 @@ public class Cliente
     [MaxLength(14)]
     public string? Cpf { get; set; }
 
+    [MaxLength(10)]
+    public string? Cep { get; set; }
+
     [MaxLength(100)]
     public string? Email { get; set; }
 

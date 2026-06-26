@@ -41,6 +41,30 @@
         </div>
     </div>
 
+    <div class="db-stats-card">
+        <div class="db-stat">
+            <i class="ti ti-database"></i>
+            <div class="db-stat-info">
+                <span>Banco de Dados</span>
+                <strong>@ViewBag.DbSizeMb.ToString("F2") MB</strong>
+            </div>
+        </div>
+        <div class="db-stat">
+            <i class="ti ti-clock"></i>
+            <div class="db-stat-info">
+                <span>Tempo de Resposta</span>
+                <strong>@ViewBag.DbResponseTimeMs ms</strong>
+            </div>
+        </div>
+        <div class="db-stat">
+            <i class="ti ti-server"></i>
+            <div class="db-stat-info">
+                <span>SQL Server</span>
+                <strong>.\SQLEXPRESS</strong>
+            </div>
+        </div>
+    </div>
+
     <div class="dashboard-grid">
         <div class="card">
             <div class="card-header"><h2>Banhos Agendados Hoje (@hojeStr)</h2></div>

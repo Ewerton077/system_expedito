@@ -10,4 +10,6 @@ public interface IClienteService
     Task UpdateAsync(Cliente cliente);
     Task DeleteAsync(int id);
     Task UpdatePetAsync(Cliente cliente);
+    Task<string> GerarMockDataAsync();
+    Task<int> LimparMockDataAsync();
 }

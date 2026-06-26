@@ -27,6 +27,8 @@ public class DashboardController : Controller
         ViewBag.PagamentosAtrasados = data.PagamentosAtrasados;
         ViewBag.AgendamentosHoje = data.AgendamentosHoje;
         ViewBag.Vencimentos = data.Vencimentos;
+        ViewBag.DbSizeMb = data.DbSizeMb;
+        ViewBag.DbResponseTimeMs = data.DbResponseTimeMs;
 
         return View();
     }

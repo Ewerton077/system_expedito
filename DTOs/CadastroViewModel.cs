@@ -8,9 +8,7 @@ public class CadastroViewModel
     public string Taxidog { get; set; } = "sim";
     public string Tosa { get; set; } = "sim";
     public decimal Valor { get; set; }
-    public List<string> DiasBanho { get; set; } = new();
     public List<string> DatasBanho { get; set; } = new();
-    public string? HorarioBanho { get; set; }
 }
 
 public class ResponsavelViewModel
@@ -20,6 +18,7 @@ public class ResponsavelViewModel
     public string Celular { get; set; } = string.Empty;
     public string Endereco { get; set; } = string.Empty;
     public string? Email { get; set; }
+    public string? Cep { get; set; }
 }
 
 public class PetViewModel

@@ -148,3 +148,16 @@ canvas{ padding:20px; max-height:320px; }
 #petsTable tr{ cursor:pointer; transition:var(--transition); }
 #petsTable tr:hover{ background:var(--red-light); }
 #petsTable tr.active{ background:var(--red-light); border-left:3px solid var(--red); display:table-row; box-shadow:inset 3px 0 0 var(--red); }
+.btn-mock{ border:1.5px solid #8B5CF6; background:white; color:#8B5CF6; padding:10px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; transition:var(--transition); font-family:var(--font-body); }
+.btn-mock:hover{ background:#8B5CF6; color:white; }
+.btn-mock-clean{ border:1.5px solid var(--text-muted); background:white; color:var(--text-muted); padding:10px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; transition:var(--transition); font-family:var(--font-body); }
+.btn-mock-clean:hover{ background:var(--text-muted); color:white; }
+.mock-toast{ background:#8B5CF6; color:white; padding:14px 18px; border-radius:var(--radius-md); margin-bottom:16px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:8px; animation:mockFadeIn .3s ease; }
+@keyframes mockFadeIn{ from{ opacity:0; transform:translateY(-8px); } to{ opacity:1; transform:translateY(0); } }
+.db-stats-card{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:20px; }
+.db-stat{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px 20px; display:flex; gap:14px; align-items:center; transition:var(--transition); }
+.db-stat:hover{ transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.db-stat i{ font-size:24px; color:var(--red); width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:var(--red-light); border-radius:10px; }
+.db-stat-info{ display:flex; flex-direction:column; gap:2px; }
+.db-stat-info span{ font-size:12px; color:var(--text-muted); }
+.db-stat-info strong{ font-family:var(--font-title); font-size:18px; color:var(--text); }

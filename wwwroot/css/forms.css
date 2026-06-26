@@ -53,3 +53,24 @@ select.form-control option{ color:var(--text); background:var(--surface); }
 .mini-cal-dia:disabled:not(.selected){ opacity:.35; cursor:default; }
 .mini-cal-info{ font-size:12px; color:var(--text-muted); margin-top:6px; text-align:center; }
 .mini-cal-info strong{ color:var(--red); }
+
+.datepicker-group{ position:relative; }
+.datepicker-wrapper{ position:relative; display:flex; }
+.datepicker-wrapper .datepicker-input{ flex:1; cursor:pointer; padding-right:40px; }
+.datepicker-trigger{ position:absolute; right:2px; top:2px; bottom:2px; width:36px; border:none; background:none; border-radius:0 6px 6px 0; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-muted); transition:var(--transition); }
+.datepicker-trigger:hover{ color:var(--red); background:var(--red-light); }
+.datepicker-popup{ position:absolute; top:calc(100% + 4px); left:0; z-index:100; background:var(--surface); border:1.5px solid var(--border); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.12); width:260px; padding:8px; }
+.datepicker-popup .dp-header{ display:flex; align-items:center; justify-content:space-between; padding:4px 4px 8px; }
+.datepicker-popup .dp-title{ font-size:13px; font-weight:700; color:var(--text); }
+.datepicker-popup .dp-nav{ border:none; background:none; width:28px; height:28px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); transition:var(--transition); }
+.datepicker-popup .dp-nav:hover{ background:var(--red-light); color:var(--red); }
+.datepicker-popup .dp-dias-semana{ display:grid; grid-template-columns:repeat(7,1fr); padding:2px 2px 4px; text-align:center; font-size:10px; font-weight:600; text-transform:uppercase; color:var(--text-muted); }
+.datepicker-popup .dp-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.datepicker-popup .dp-dia{ aspect-ratio:1; border:none; background:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; color:var(--text); display:flex; align-items:center; justify-content:center; transition:var(--transition); }
+.datepicker-popup .dp-dia:hover:not(.outro-mes){ background:var(--red-light); color:var(--red); }
+.datepicker-popup .dp-dia.outro-mes{ color:var(--text-muted); opacity:.3; }
+.datepicker-popup .dp-dia.selected{ background:var(--red); color:white; font-weight:700; }
+.datepicker-popup .dp-dia.selected:hover{ background:var(--red-dark); }
+.datepicker-popup .dp-footer{ display:flex; justify-content:center; padding-top:6px; border-top:1px solid var(--border); margin-top:4px; }
+.datepicker-popup .dp-limpar{ border:none; background:none; font-size:11px; font-weight:600; color:var(--text-muted); cursor:pointer; padding:4px 12px; border-radius:6px; transition:var(--transition); }
+.datepicker-popup .dp-limpar:hover{ color:var(--red); background:var(--red-light); }

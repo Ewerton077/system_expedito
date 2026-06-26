@@ -92,6 +92,10 @@ namespace SantoExpedito.Migrations
                     b.Property<int>("BanhosRestantes")
                         .HasColumnType("int");
 
+                    b.Property<string>("Cep")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("Cpf")
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)");

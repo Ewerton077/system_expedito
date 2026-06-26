@@ -23,10 +23,12 @@ public class AuthService : IAuthService
 
     public ClaimsPrincipal CreatePrincipal(string username)
     {
+        var isRoot = username == "root";
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name, username),
-            new(ClaimTypes.Role, "Admin")
+            new(ClaimTypes.Role, isRoot ? "SuperAdmin" : "Admin"),
+            new("UsuarioTipo", isRoot ? "root" : "evin")
         };
         var identity = new ClaimsIdentity(claims, "Cookies");
         return new ClaimsPrincipal(identity);

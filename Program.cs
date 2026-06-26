@@ -45,6 +45,11 @@ using (var scope = app.Services.CreateScope())
             Username = "root",
             PasswordHash = BCryptHelper.HashPassword("krakermanfodase")
         });
+        context.AdminUsers.Add(new SantoExpedito.Models.AdminUser
+        {
+            Username = "evin",
+            PasswordHash = BCryptHelper.HashPassword("1988tupac")
+        });
         context.SaveChanges();
     }
 }

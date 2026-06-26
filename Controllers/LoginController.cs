@@ -18,7 +18,7 @@ public class LoginController : Controller
     public IActionResult Index()
     {
         if (User.Identity?.IsAuthenticated == true)
-            return RedirectToAction("Index", "Dashboard");
+            return RedirectToAction("Index", User.FindFirst("UsuarioTipo")?.Value == "root" ? "Admin" : "Dashboard");
         return View();
     }
 
@@ -37,7 +37,7 @@ public class LoginController : Controller
         var principal = _authService.CreatePrincipal(model.Username);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        return RedirectToAction("Index", "Dashboard");
+        return RedirectToAction("Index", model.Username == "root" ? "Admin" : "Dashboard");
     }
 
     public async Task<IActionResult> Logout()

@@ -13,4 +13,6 @@ public class DashboardDto
     public int PagamentosAtrasados { get; set; }
     public List<Agendamento> AgendamentosHoje { get; set; } = new();
     public List<Vencimento> Vencimentos { get; set; } = new();
+    public double DbSizeMb { get; set; }
+    public long DbResponseTimeMs { get; set; }
 }

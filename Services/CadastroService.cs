@@ -23,7 +23,6 @@ public class CadastroService : ICadastroService
         var stored = await _context.Clientes.ToListAsync();
         int maxId = stored.Count > 0 ? stored.Max(c => c.Id) : 0;
 
-        var diasBanhoStr = string.Join(",", model.DiasBanho ?? new List<string>());
         var datasBanhoStr = string.Join(",", model.DatasBanho ?? new List<string>());
 
         foreach (var pet in model.Pets)
@@ -46,10 +45,10 @@ public class CadastroService : ICadastroService
                 PetAntipulgas = pet.Antipulgas,
                 PetVacinacao = pet.Vacinacao,
                 Valor = model.Valor,
-                DiasBanho = diasBanhoStr,
                 DatasBanho = datasBanhoStr,
                 Cpf = model.Responsavel.Cpf,
                 Email = model.Responsavel.Email,
+                Cep = model.Responsavel.Cep,
                 PetIdade = pet.Idade
             };
             _context.Clientes.Add(cliente);
@@ -85,7 +84,7 @@ public class CadastroService : ICadastroService
                         _context.Agendamentos.Add(new Agendamento
                         {
                             Data = data,
-                            Horario = model.HorarioBanho ?? "08:00",
+                            Horario = "08:00",
                             Pet = pet.Nome,
                             Tutor = model.Responsavel.Nome,
                             Plano = model.Plano,

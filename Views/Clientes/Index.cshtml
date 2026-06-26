@@ -5,14 +5,29 @@
     var clienteDetalhe = ViewBag.ClienteDetalhe as SantoExpedito.Models.Cliente;
     var clienteEdit = ViewBag.ClienteEdit as SantoExpedito.Models.Cliente;
     var filtrados = clientes.Where(c => c.Plano == planoAtivo).ToList();
+    var mockMsg = TempData["MockMessage"] as string;
 }
 
 <div class="page active" id="clientes">
+    @if (!string.IsNullOrEmpty(mockMsg))
+    {
+        <div class="mock-toast">@mockMsg</div>
+    }
     <div class="page-header">
         <h2>Clientes</h2>
-        <a class="btn-primary" href="@Url.Action("Index","Cadastro")">
-            <i class="ti ti-plus"></i> Novo Cliente
-        </a>
+        <div style="display:flex;gap:8px;align-items:center">
+            <form method="post" action="@Url.Action("GerarMock","Clientes")" style="display:inline" onsubmit="return confirm('Gerar 300 clientes mock com 3 pets cada?')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-mock"><i class="ti ti-adjustments"></i> Gerar 300 Mock</button>
+            </form>
+            <form method="post" action="@Url.Action("LimparMock","Clientes")" style="display:inline" onsubmit="return confirm('Remover todos os clientes mock?')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-mock-clean"><i class="ti ti-trash"></i> Limpar Mock</button>
+            </form>
+            <a class="btn-primary" href="@Url.Action("Index","Cadastro")">
+                <i class="ti ti-plus"></i> Novo Cliente
+            </a>
+        </div>
     </div>
     <div class="clientes-container">
         <div class="clientes-list-panel">
@@ -65,6 +80,7 @@
                             <div class="detail-field full"><label>Nome</label><input type="text" class="form-control" name="nome" value="@c.Nome" required></div>
                             <div class="detail-field"><label>Telefone</label><input type="text" class="form-control" name="telefone" value="@c.Telefone"></div>
                             <div class="detail-field"><label>Endereço</label><input type="text" class="form-control" name="endereco" value="@c.Endereco"></div>
+                            <div class="detail-field"><label>CEP</label><input type="text" class="form-control" name="cep" value="@c.Cep" maxlength="10"></div>
                             <div class="detail-field"><label>Pet</label><input type="text" class="form-control" name="petNome" value="@c.PetNome"></div>
                             <div class="detail-field"><label>Raça</label><input type="text" class="form-control" name="petRaca" value="@c.PetRaca"></div>
                             <div class="detail-field">
@@ -133,6 +149,7 @@
                     <div class="detail-grid">
                         <div class="detail-field"><label>Telefone</label><p>@c.Telefone</p></div>
                         <div class="detail-field"><label>Endereço</label><p>@c.Endereco</p></div>
+                        <div class="detail-field"><label>CEP</label><p>@(!string.IsNullOrEmpty(c.Cep) ? c.Cep : "Não informado")</p></div>
                         <div class="detail-field"><label>Pet</label><p>@c.PetNome (@c.Porte)</p></div>
                         <div class="detail-field"><label>Raça</label><p>@c.PetRaca</p></div>
                         <div class="detail-field"><label>Banhos Restantes</label><p>@banhosStatus</p></div>

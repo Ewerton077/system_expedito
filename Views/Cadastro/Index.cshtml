@@ -32,6 +32,10 @@
                         <label for="campoNumero">Número</label>
                         <input type="text" id="campoNumero" class="form-control" placeholder="Nº" required>
                     </div>
+                    <div class="form-group">
+                        <label for="campoCep">CEP</label>
+                        <input type="text" id="campoCep" class="form-control" placeholder="00000-000" maxlength="9">
+                    </div>
                     <div class="form-group full">
                         <label for="campoEmail">E-mail <span class="label-optional">(opcional)</span></label>
                         <input type="email" id="campoEmail" class="form-control" placeholder="cliente@exemplo.com">
@@ -91,9 +95,30 @@
                             </div>
                         </div>
                         <div class="form-group full"><label>Ração que consome</label><input type="text" class="form-control pet-racao" placeholder="Ex: Golden Special, Premier..." required></div>
-                        <div class="form-group"><label>Última Vermifugação</label><input type="date" class="form-control pet-vermifugacao"></div>
-                        <div class="form-group"><label>Última Antipulgas</label><input type="date" class="form-control pet-antipulgas"></div>
-                        <div class="form-group full"><label>Última Vacinação</label><input type="date" class="form-control pet-vacinacao"></div>
+                        <div class="form-group datepicker-group">
+                            <label>Última Vermifugação <span class="label-optional">(opcional)</span></label>
+                            <div class="datepicker-wrapper">
+                                <input type="text" class="form-control pet-vermifugacao datepicker-input" placeholder="Selecione a data" readonly>
+                                <button type="button" class="datepicker-trigger" tabindex="-1"><i class="ti ti-calendar"></i></button>
+                                <div class="datepicker-popup" style="display:none"></div>
+                            </div>
+                        </div>
+                        <div class="form-group datepicker-group">
+                            <label>Última Antipulgas <span class="label-optional">(opcional)</span></label>
+                            <div class="datepicker-wrapper">
+                                <input type="text" class="form-control pet-antipulgas datepicker-input" placeholder="Selecione a data" readonly>
+                                <button type="button" class="datepicker-trigger" tabindex="-1"><i class="ti ti-calendar"></i></button>
+                                <div class="datepicker-popup" style="display:none"></div>
+                            </div>
+                        </div>
+                        <div class="form-group full datepicker-group">
+                            <label>Última Vacinação <span class="label-optional">(opcional)</span></label>
+                            <div class="datepicker-wrapper">
+                                <input type="text" class="form-control pet-vacinacao datepicker-input" placeholder="Selecione a data" readonly>
+                                <button type="button" class="datepicker-trigger" tabindex="-1"><i class="ti ti-calendar"></i></button>
+                                <div class="datepicker-popup" style="display:none"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <button type="button" class="btn-add-pet" id="btnAdicionarPet"><i class="ti ti-plus"></i> Adicionar outro pet</button>
@@ -130,18 +155,6 @@
                         <input type="number" id="campoValor" class="form-control" step="0.01" min="0" required>
                     </div>
                     <div class="form-group full">
-                        <label>Dias da Semana para Banho</label>
-                        <span class="field-hint">Selecione os dias da semana em que o pet costuma vir</span>
-                        <div class="checkbox-group-horizontal">
-                            <label class="dia-checkbox"><input type="checkbox" name="diaBanho" value="Segunda" checked> Seg</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaBanho" value="Terça"> Ter</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaBanho" value="Quarta"> Qua</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaBanho" value="Quinta"> Qui</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaBanho" value="Sexta"> Sex</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaBanho" value="Sábado"> Sáb</label>
-                        </div>
-                    </div>
-                    <div class="form-group full">
                         <label>Calendário de Banhos</label>
                         <span class="field-hint">Clique nas datas para marcar os dias de banho deste mês</span>
                         <div class="mini-calendar" id="miniCalendarCadastro">
@@ -154,12 +167,6 @@
                             <div class="mini-cal-grid" id="miniCalGrid"></div>
                         </div>
                         <div class="mini-cal-info" id="miniCalInfo">Selecione até <strong>4</strong> datas</div>
-                        <div class="form-row" style="margin-top:8px">
-                            <div class="form-group" style="flex:1">
-                                <label>Horário dos Banhos</label>
-                                <input type="time" id="campoHorarioBanho" class="form-control" value="08:00">
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -224,9 +231,31 @@ document.getElementById('btnAdicionarPet').addEventListener('click', () => {
             <div class="form-group"><label>Porte</label><select class="form-control pet-porte" required>${document.querySelector('.pet-porte').innerHTML}</select></div>
         </div>
         <div class="form-group full"><label>Ração que consome</label><input type="text" class="form-control pet-racao" placeholder="Ex: Golden Special, Premier..." required></div>
-        <div class="form-group"><label>Última Vermifugação</label><input type="date" class="form-control pet-vermifugacao"></div>
-        <div class="form-group"><label>Última Antipulgas</label><input type="date" class="form-control pet-antipulgas"></div>
-        <div class="form-group full"><label>Última Vacinação</label><input type="date" class="form-control pet-vacinacao"></div>`;
+        <div class="form-group datepicker-group">
+            <label>Última Vermifugação <span class="label-optional">(opcional)</span></label>
+            <div class="datepicker-wrapper">
+                <input type="text" class="form-control pet-vermifugacao datepicker-input" placeholder="Selecione a data" readonly>
+                <button type="button" class="datepicker-trigger" tabindex="-1"><i class="ti ti-calendar"></i></button>
+                <div class="datepicker-popup" style="display:none"></div>
+            </div>
+        </div>
+        <div class="form-group datepicker-group">
+            <label>Última Antipulgas <span class="label-optional">(opcional)</span></label>
+            <div class="datepicker-wrapper">
+                <input type="text" class="form-control pet-antipulgas datepicker-input" placeholder="Selecione a data" readonly>
+                <button type="button" class="datepicker-trigger" tabindex="-1"><i class="ti ti-calendar"></i></button>
+                <div class="datepicker-popup" style="display:none"></div>
+            </div>
+        </div>
+        <div class="form-group full datepicker-group">
+            <label>Última Vacinação <span class="label-optional">(opcional)</span></label>
+            <div class="datepicker-wrapper">
+                <input type="text" class="form-control pet-vacinacao datepicker-input" placeholder="Selecione a data" readonly>
+                <button type="button" class="datepicker-trigger" tabindex="-1"><i class="ti ti-calendar"></i></button>
+                <div class="datepicker-popup" style="display:none"></div>
+            </div>
+        </div>`;
+    initDatepickers(div);
     div.querySelector('.btn-remove-pet').addEventListener('click', () => { div.remove(); reindexPets(); });
     container.appendChild(div);
 });
@@ -286,6 +315,94 @@ document.getElementById('miniCalNext').addEventListener('click', e => { e.preven
 document.querySelectorAll('input[name="plano"]').forEach(radio => radio.addEventListener('change', () => { if (datasBanhoSelecionadas.length > getMaxDatasBanho()) datasBanhoSelecionadas = datasBanhoSelecionadas.slice(0, getMaxDatasBanho()); renderizarMiniCalendario(); }));
 renderizarMiniCalendario();
 
+function initDatepickers(container) {
+    container.querySelectorAll('.datepicker-wrapper').forEach(wrapper => {
+        const input = wrapper.querySelector('.datepicker-input');
+        const trigger = wrapper.querySelector('.datepicker-trigger');
+        const popup = wrapper.querySelector('.datepicker-popup');
+        let calMes = new Date().getMonth();
+        let calAno = new Date().getFullYear();
+        let selectedDate = input.value || '';
+
+        function renderDatepicker() {
+            const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            const primeiroDia = new Date(calAno, calMes, 1).getDay();
+            const ultimoDia = new Date(calAno, calMes + 1, 0).getDate();
+            const ultimoDiaMesAnt = new Date(calAno, calMes, 0).getDate();
+            let html = `<div class="dp-header">
+                <button type="button" class="dp-nav" data-dir="-1"><i class="ti ti-chevron-left"></i></button>
+                <span class="dp-title">${meses[calMes]} ${calAno}</span>
+                <button type="button" class="dp-nav" data-dir="1"><i class="ti ti-chevron-right"></i></button>
+            </div>
+            <div class="dp-dias-semana"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+            <div class="dp-grid">`;
+            for (let i = primeiroDia - 1; i >= 0; i--) html += `<button type="button" class="dp-dia outro-mes" disabled>${ultimoDiaMesAnt - i}</button>`;
+            for (let d = 1; d <= ultimoDia; d++) {
+                const dataStr = `${String(d).padStart(2,'0')}/${String(calMes+1).padStart(2,'0')}/${calAno}`;
+                const isSelected = selectedDate === dataStr ? 'selected' : '';
+                html += `<button type="button" class="dp-dia ${isSelected}" data-val="${dataStr}">${d}</button>`;
+            }
+            const resto = (7 - ((primeiroDia + ultimoDia) % 7)) % 7;
+            for (let d = 1; d <= resto; d++) html += `<button type="button" class="dp-dia outro-mes" disabled>${d}</button>`;
+            html += `</div>`;
+            html += `<div class="dp-footer"><button type="button" class="dp-limpar">Limpar</button></div>`;
+            popup.innerHTML = html;
+
+            popup.querySelectorAll('.dp-nav').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const dir = parseInt(btn.dataset.dir);
+                    calMes += dir;
+                    if (calMes < 0) { calMes = 11; calAno--; }
+                    if (calMes > 11) { calMes = 0; calAno++; }
+                    renderDatepicker();
+                });
+            });
+            popup.querySelectorAll('.dp-dia:not(.outro-mes)').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    selectedDate = btn.dataset.val;
+                    input.value = selectedDate;
+                    popup.style.display = 'none';
+                });
+            });
+            const limpar = popup.querySelector('.dp-limpar');
+            if (limpar) {
+                limpar.addEventListener('click', e => {
+                    e.stopPropagation();
+                    selectedDate = '';
+                    input.value = '';
+                    popup.style.display = 'none';
+                });
+            }
+        }
+
+        function openDatepicker() {
+            if (input.value) {
+                const parts = input.value.split('/');
+                if (parts.length === 3) {
+                    calMes = parseInt(parts[1]) - 1;
+                    calAno = parseInt(parts[2]);
+                }
+            }
+            selectedDate = input.value;
+            renderDatepicker();
+            popup.style.display = 'block';
+        }
+
+        function closeDatepicker() {
+            popup.style.display = 'none';
+        }
+
+        input.addEventListener('click', e => { e.stopPropagation(); openDatepicker(); });
+        trigger.addEventListener('click', e => { e.stopPropagation(); openDatepicker(); });
+        document.addEventListener('click', e => {
+            if (!wrapper.contains(e.target)) closeDatepicker();
+        });
+    });
+}
+initDatepickers(document);
+
 document.getElementById('formCadastro').addEventListener('submit', e => {
     e.preventDefault();
     const campoValor = document.getElementById('campoValor');
@@ -296,6 +413,7 @@ document.getElementById('formCadastro').addEventListener('submit', e => {
     const rua = document.getElementById('campoRua').value.trim();
     const numero = document.getElementById('campoNumero').value.trim();
     const email = document.getElementById('campoEmail').value.trim();
+    const cep = document.getElementById('campoCep').value.trim();
     if (!nome || !cpf || !celular || !rua || !numero) { alert('Preencha todos os campos obrigatórios.'); return; }
     if (!validarCPF(cpf)) { alert('CPF inválido.'); document.getElementById('campoCpf').focus(); return; }
     const pets = [];
@@ -314,9 +432,7 @@ document.getElementById('formCadastro').addEventListener('submit', e => {
     const plano = document.querySelector('input[name="plano"]:checked').value;
     const taxidog = document.querySelector('input[name="taxidog"]:checked').value;
     const tosa = document.querySelector('input[name="tosa"]:checked').value;
-    const diasBanho = [];
-    document.querySelectorAll('input[name="diaBanho"]:checked').forEach(cb => diasBanho.push(cb.value));
-    const dados = { responsavel: { nome, cpf, celular, endereco: `${rua}, ${numero}`, email }, pets, plano, taxidog, tosa, valor: parseFloat(campoValor.value), diasBanho, datasBanho: [...datasBanhoSelecionadas], horarioBanho: document.getElementById('campoHorarioBanho').value || '08:00' };
+    const dados = { responsavel: { nome, cpf, celular, endereco: `${rua}, ${numero}`, email, cep }, pets, plano, taxidog, tosa, valor: parseFloat(campoValor.value), datasBanho: [...datasBanhoSelecionadas] };
     fetch('@Url.Action("Salvar","Cadastro")', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
