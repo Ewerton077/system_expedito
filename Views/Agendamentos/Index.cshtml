@@ -5,7 +5,10 @@
 }
 
 <div class="page active" id="agendamentos">
-    <div class="page-header"><h2>Agendamentos</h2></div>
+    <div class="page-header">
+        <h2>Agendamentos</h2>
+        <button class="btn-primary" id="btnBanhoUnico"><i class="ti ti-droplet"></i> Banho Único</button>
+    </div>
     <div class="agenda-container">
         <div class="card agenda-cal-card">
             <div class="agenda-cal-header">
@@ -25,6 +28,65 @@
             </div>
         </div>
     </div>
+
+    <div class="modal-overlay" id="banhoUnicoModal" style="display:none">
+        <div class="modal-card card">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+                <h2><i class="ti ti-droplet" style="color:var(--red)"></i> Banho Único</h2>
+                <button class="agenda-nav" id="fecharBanhoUnico"><i class="ti ti-x"></i></button>
+            </div>
+            <div style="padding:22px">
+                <form id="formBanhoUnico">
+                    <div style="display:flex;flex-direction:column;gap:16px">
+                        <div style="display:flex;flex-direction:column;gap:4px">
+                            <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase">Nome do Tutor</label>
+                            <input type="text" class="form-control" id="buTutor" placeholder="Nome completo" required>
+                        </div>
+                        <div style="display:flex;gap:12px">
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase">Endereço</label>
+                                <input type="text" class="form-control" id="buEndereco" placeholder="Rua, número, bairro" required>
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase">Telefone</label>
+                                <input type="text" class="form-control" id="buTelefone" placeholder="(XX) XXXXX-XXXX" required>
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:4px">
+                            <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase">Nome do Pet</label>
+                            <input type="text" class="form-control" id="buPet" placeholder="Nome do pet" required>
+                        </div>
+                        <div style="display:flex;gap:12px">
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase">Data</label>
+                                <div class="datepicker-group">
+                                    <div class="datepicker-wrapper">
+                                        <input type="text" class="form-control datepicker-input" id="buData" placeholder="DD/MM/AAAA" readonly required>
+                                        <button type="button" class="datepicker-trigger" id="buDataTrigger"><i class="ti ti-calendar"></i></button>
+                                    </div>
+                                    <div class="datepicker-popup" id="buDataPopup" style="display:none">
+                                        <div class="dp-header">
+                                            <button type="button" class="dp-nav" id="buDataPrev"><i class="ti ti-chevron-left"></i></button>
+                                            <span class="dp-title" id="buDataTitle"></span>
+                                            <button type="button" class="dp-nav" id="buDataNext"><i class="ti ti-chevron-right"></i></button>
+                                        </div>
+                                        <div class="dp-dias-semana"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+                                        <div class="dp-grid" id="buDataGrid"></div>
+                                        <div class="dp-footer"><button type="button" class="dp-limpar" id="buDataLimpar">Limpar</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                                <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase">Horário</label>
+                                <input type="text" class="form-control" id="buHorario" placeholder="HH:MM" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary" style="align-self:flex-end;padding:12px 24px"><i class="ti ti-device-floppy"></i> Agendar Banho Único</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -34,6 +96,8 @@ let agendaMes = new Date().getMonth();
 let agendaAno = new Date().getFullYear();
 let agendaDiaSelecionado = null;
 let agendaDataAtual = null;
+const petsUrl = '@Url.Action("Index", "Pets")';
+const petsListarUrl = '@Url.Action("Listar", "Pets")';
 
 function carregarAgendamentos() {
     fetch('@Url.Action("Listar","Agendamentos")')
@@ -100,7 +164,7 @@ function renderizarAgendaDia(data) {
     }
     title.innerHTML = `<i class="ti ti-calendar-event" style="color:var(--red)"></i> ${data} (${doDia.length} agendamento${doDia.length > 1 ? 's' : ''})`;
     list.innerHTML = doDia.map((a, idx) => {
-        const tagClass = a.plano === 'Mensal' ? 'mensal' : 'quinzenal';
+        const tagClass = a.plano === 'Mensal' ? 'mensal' : a.plano === 'Único' ? 'unico' : 'quinzenal';
         const statusClass = a.status === 'Em espera' ? 'espera' : a.status === 'Em processo' ? 'processo' : 'concluido';
         return `<div class="agenda-list-item"><div class="agenda-list-time">${a.horario}</div><div class="agenda-list-info"><strong class="agenda-list-pet" data-agenda-idx="${idx}">${a.pet}</strong><span>${a.tutor}</span></div><span class="agenda-list-status ${statusClass}">${a.status}</span><span class="agenda-list-plano ${tagClass}">${a.plano}</span></div>`;
     }).join('');
@@ -121,8 +185,9 @@ function mostrarDetalheAgendamento(ag) {
     title.innerHTML = `<i class="ti ti-paw" style="color:var(--red)"></i> ${ag.pet}`;
     const iniciais = ag.pet.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
     const statusClass = ag.status === 'Em espera' ? 'espera' : ag.status === 'Em processo' ? 'processo' : ag.status === 'Concluído' ? 'concluido' : 'espera';
-    body.innerHTML = `
-        <div class="detail-header"><div class="avatar-letter">${iniciais}</div><div class="detail-header-info"><h3>${ag.pet}</h3><span>${ag.plano}</span></div></div>
+    const detailTagClass = ag.plano === 'Mensal' ? 'mensal' : ag.plano === 'Único' ? 'unico' : 'quinzenal';
+        body.innerHTML = `
+        <div class="detail-header"><div class="avatar-letter">${iniciais}</div><div class="detail-header-info"><h3>${ag.pet}</h3><span class="agenda-list-plano ${detailTagClass}">${ag.plano}</span></div></div>
         <div class="detail-grid">
             <div class="detail-field"><label>Tutor</label><p>${ag.tutor}</p></div>
             <div class="detail-field"><label>Horário</label><p>${ag.horario}</p></div>
@@ -136,9 +201,35 @@ function mostrarDetalheAgendamento(ag) {
                 <button type="submit" name="status" value="Em espera" class="agenda-status-btn ${ag.status === 'Em espera' ? 'active-espera' : ''}"><i class="ti ti-clock"></i> Em espera</button>
                 <button type="submit" name="status" value="Em processo" class="agenda-status-btn ${ag.status === 'Em processo' ? 'active-processo' : ''}"><i class="ti ti-refresh"></i> Em processo</button>
                 <button type="submit" name="status" value="Concluído" class="agenda-status-btn ${ag.status === 'Concluído' ? 'active-concluido' : ''}"><i class="ti ti-circle-check"></i> Concluído</button>
+                <button type="button" class="agenda-status-btn remarcar-btn" onclick="toggleRemarcar(${ag.id})"><i class="ti ti-calendar-time"></i> Remarcar</button>
                 <button type="submit" name="status" value="Removido" class="agenda-status-btn remover-btn" onclick="return confirm('Remover este agendamento?')"><i class="ti ti-x"></i> Remover</button>
             </form>
+        </div>
+        <div style="display:flex;gap:8px;padding:12px 20px;border-top:1px solid var(--border)">
+            <button type="button" class="agenda-status-btn visualizar-pet-btn" data-pet="${ag.pet}" data-tutor="${ag.tutor}" style="flex:1;text-align:center;cursor:pointer"><i class="ti ti-paw"></i> Visualizar Pet</button>
+        </div>
+        <div class="remarcar-form" id="remarcarForm${ag.id}" style="display:none">
+            <form method="post" action="@Url.Action("Remarcar","Agendamentos")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="${ag.id}">
+                <div class="remarcar-fields">
+                    <div class="remarcar-field">
+                        <label>Nova Data</label>
+                        <input type="text" class="form-control" name="novaData" value="${ag.data}" placeholder="DD/MM/AAAA" required>
+                    </div>
+                    <div class="remarcar-field">
+                        <label>Novo Horário</label>
+                        <input type="text" class="form-control" name="novoHorario" value="${ag.horario}" placeholder="HH:MM" required>
+                    </div>
+                    <button type="submit" class="btn-primary" style="padding:10px 16px;font-size:12px;align-self:flex-end"><i class="ti ti-device-floppy"></i> Confirmar</button>
+                </div>
+            </form>
         </div>`;
+}
+
+function toggleRemarcar(id) {
+    const form = document.getElementById('remarcarForm' + id);
+    if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
 
 document.getElementById('agendaPrev').addEventListener('click', () => { agendaMes--; if (agendaMes < 0) { agendaMes = 11; agendaAno--; } renderizarCalendario(agendaMes, agendaAno); });
@@ -147,6 +238,127 @@ document.getElementById('agendaDetailBack').addEventListener('click', () => {
     document.getElementById('agendaList').style.display = 'block';
     document.getElementById('agendaDetail').style.display = 'none';
     if (agendaDataAtual) renderizarAgendaDia(agendaDataAtual);
+});
+
+document.addEventListener('click', e => {
+    const btn = e.target.closest('.visualizar-pet-btn');
+    if (!btn) return;
+    const petNome = btn.dataset.pet;
+    const tutor = btn.dataset.tutor;
+    fetch(petsListarUrl)
+        .then(r => r.json())
+        .then(pets => {
+            const pet = pets.find(p => p.nome === petNome && p.tutor === tutor);
+            if (pet) window.location.href = `${petsUrl}?detalheId=${pet.id}`;
+            else window.location.href = `${petsUrl}?search=${encodeURIComponent(petNome)}`;
+        })
+        .catch(() => window.location.href = `${petsUrl}?search=${encodeURIComponent(petNome)}`);
+});
+
+const banhoUnicoModal = document.getElementById('banhoUnicoModal');
+const buTutor = document.getElementById('buTutor');
+const buPet = document.getElementById('buPet');
+const buEndereco = document.getElementById('buEndereco');
+const buTelefone = document.getElementById('buTelefone');
+
+document.getElementById('btnBanhoUnico').addEventListener('click', () => {
+    buTutor.value = '';
+    buPet.value = '';
+    buEndereco.value = '';
+    buTelefone.value = '';
+    buDataInput.value = '';
+    document.getElementById('buHorario').value = '';
+    banhoUnicoModal.style.display = 'flex';
+    banhoUnicoModal.style.alignItems = 'center';
+    banhoUnicoModal.style.justifyContent = 'center';
+    banhoUnicoModal.style.position = 'fixed';
+    banhoUnicoModal.style.top = '0';
+    banhoUnicoModal.style.left = '0';
+    banhoUnicoModal.style.width = '100%';
+    banhoUnicoModal.style.height = '100%';
+    banhoUnicoModal.style.background = 'rgba(0,0,0,0.5)';
+    banhoUnicoModal.style.zIndex = '1000';
+});
+
+document.getElementById('fecharBanhoUnico').addEventListener('click', () => { banhoUnicoModal.style.display = 'none'; buDataPopup.style.display = 'none'; });
+banhoUnicoModal.addEventListener('click', e => { if (e.target === banhoUnicoModal) { banhoUnicoModal.style.display = 'none'; buDataPopup.style.display = 'none'; } });
+
+let buCalMes = new Date().getMonth();
+let buCalAno = new Date().getFullYear();
+const buDataInput = document.getElementById('buData');
+const buDataPopup = document.getElementById('buDataPopup');
+const buDataGrid = document.getElementById('buDataGrid');
+const buDataTitle = document.getElementById('buDataTitle');
+
+function renderizarBuCalendario(mes, ano) {
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    buDataTitle.textContent = `${meses[mes]} ${ano}`;
+    const primeiroDia = new Date(ano, mes, 1).getDay();
+    const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+    const ultimoDiaMesAnt = new Date(ano, mes, 0).getDate();
+    let html = '';
+    const diasMesAnt = primeiroDia === 0 ? 0 : primeiroDia;
+    for (let i = diasMesAnt - 1; i >= 0; i--) {
+        html += `<button type="button" class="dp-dia outro-mes" disabled>${ultimoDiaMesAnt - i}</button>`;
+    }
+    for (let d = 1; d <= ultimoDia; d++) {
+        const dataStr = `${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}/${ano}`;
+        const isSelected = buDataInput.value === dataStr ? 'selected' : '';
+        html += `<button type="button" class="dp-dia ${isSelected}" data-data="${dataStr}">${d}</button>`;
+    }
+    const totalCelulas = diasMesAnt + ultimoDia;
+    const resto = (7 - (totalCelulas % 7)) % 7;
+    for (let d = 1; d <= resto; d++) {
+        html += `<button type="button" class="dp-dia outro-mes" disabled>${d}</button>`;
+    }
+    buDataGrid.innerHTML = html;
+    buDataGrid.querySelectorAll('.dp-dia:not(.outro-mes)').forEach(btn => {
+        btn.addEventListener('click', () => {
+            buDataInput.value = btn.dataset.data;
+            buDataPopup.style.display = 'none';
+        });
+    });
+}
+
+function toggleBuPopup() {
+    const aberto = buDataPopup.style.display === 'block';
+    buDataPopup.style.display = aberto ? 'none' : 'block';
+    if (!aberto) renderizarBuCalendario(buCalMes, buCalAno);
+}
+
+document.getElementById('buDataTrigger').addEventListener('click', e => { e.stopPropagation(); toggleBuPopup(); });
+buDataInput.addEventListener('click', e => { e.stopPropagation(); toggleBuPopup(); });
+document.getElementById('buDataPrev').addEventListener('click', e => { e.stopPropagation(); buCalMes--; if (buCalMes < 0) { buCalMes = 11; buCalAno--; } renderizarBuCalendario(buCalMes, buCalAno); });
+document.getElementById('buDataNext').addEventListener('click', e => { e.stopPropagation(); buCalMes++; if (buCalMes > 11) { buCalMes = 0; buCalAno++; } renderizarBuCalendario(buCalMes, buCalAno); });
+document.getElementById('buDataLimpar').addEventListener('click', e => { e.stopPropagation(); buDataInput.value = ''; renderizarBuCalendario(buCalMes, buCalAno); });
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.datepicker-group') || e.target.closest('.datepicker-group') !== buDataInput.closest('.datepicker-group')) {
+        buDataPopup.style.display = 'none';
+    }
+});
+
+buDataPopup.addEventListener('click', e => e.stopPropagation());
+
+document.getElementById('formBanhoUnico').addEventListener('submit', e => {
+    e.preventDefault();
+    const tutor = buTutor.value;
+    const endereco = buEndereco.value;
+    const telefone = buTelefone.value;
+    const petNome = buPet.value;
+    const data = document.getElementById('buData').value;
+    const horario = document.getElementById('buHorario').value;
+    if (!tutor || !endereco || !telefone || !petNome || !data || !horario) { alert('Preencha todos os campos.'); return; }
+    const banhoUnicoUrl = '@Url.Action("BanhoUnico", "Agendamentos")';
+    fetch(banhoUnicoUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `tutor=${encodeURIComponent(tutor)}&endereco=${encodeURIComponent(endereco)}&telefone=${encodeURIComponent(telefone)}&petNome=${encodeURIComponent(petNome)}&data=${encodeURIComponent(data)}&horario=${encodeURIComponent(horario)}`
+    }).then(r => r.json()).then(data => {
+        alert(data.message || 'Banho único agendado!');
+        banhoUnicoModal.style.display = 'none';
+        carregarAgendamentos();
+    }).catch(() => alert('Erro ao agendar banho único.'));
 });
 
 carregarAgendamentos();

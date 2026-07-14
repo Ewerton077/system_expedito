@@ -3,25 +3,33 @@
     ViewBag.Title = "Pets";
     var clientes = ViewBag.Clientes as List<SantoExpedito.Models.Cliente> ?? new();
     var petDetalhe = ViewBag.PetDetalhe as SantoExpedito.Models.Pet;
+    var searchTerm = ViewBag.SearchTerm as string ?? "";
 }
 
 <div class="page active" id="pets">
     <div class="page-header">
         <h2>Pets</h2>
+        <div class="search-box">
+            <i class="ti ti-search"></i>
+            <input type="text" class="search-input" id="petSearch" placeholder="Buscar pet, tutor, raça..."
+                   value="@searchTerm"
+                   oninput="filterPets(this.value)">
+        </div>
     </div>
     <div class="clientes-container">
         <div class="clientes-list-panel" style="width:380px;min-width:380px">
             <div class="card" style="border:none;box-shadow:none;margin:0">
                 <table>
-                    <thead><tr><th>Pet</th><th>Raça</th><th>Porte</th></tr></thead>
+                    <thead><tr><th>Pet</th><th>Raça</th><th>Idade</th><th>Porte</th></tr></thead>
                     <tbody>
                         @foreach (var pet in Model)
                         {
                             var isSelected = petDetalhe?.Id == pet.Id;
                             <tr class="@(isSelected ? "active" : "")"
-                                onclick="location.href='@Url.Action("Index", new { detalheId = pet.Id })'">
+                                onclick="location.href='@Url.Action("Index", new { detalheId = pet.Id, search = searchTerm })'">
                                 <td>@pet.Nome</td>
                                 <td>@pet.Raca</td>
+                                <td>@(!string.IsNullOrEmpty(pet.Idade) ? pet.Idade : "-")</td>
                                 <td>@pet.Porte</td>
                             </tr>
                         }
@@ -36,6 +44,13 @@
                 var tutorCliente = clientes.FirstOrDefault(cl => cl.Nome == p.Tutor && cl.PetNome == p.Nome);
                 var iniciais = string.Concat(p.Nome.Split(' ').Select(pal => pal.Length > 0 ? pal[0].ToString() : "")).ToUpper();
                 if (iniciais.Length > 2) iniciais = iniciais[..2];
+                var banhosCalc = 0;
+                if (tutorCliente != null && ViewBag.BanhosRestantesDict != null)
+                {
+                    var dict = (Dictionary<int, int>)ViewBag.BanhosRestantesDict;
+                    if (dict.ContainsKey(tutorCliente.Id)) banhosCalc = dict[tutorCliente.Id];
+                }
+                var medicamentoHtml = p.Medicamento ? (!string.IsNullOrEmpty(p.MedicamentoNome) ? $"Sim - {p.MedicamentoNome}" : "Sim") : "Não";
                 <div class="detail-content">
                     <div class="detail-header">
                         <div class="avatar-letter">@iniciais</div>
@@ -46,12 +61,23 @@
                         @if (tutorCliente != null)
                         {
                             <div class="detail-field"><label>Telefone</label><p>@tutorCliente.Telefone</p></div>
+                            <div class="detail-field"><label>Banhos Restantes</label><p style="color:var(--red);font-weight:600">@banhosCalc - Mês</p></div>
                         }
+                        <div class="detail-field"><label>Idade</label><p>@(!string.IsNullOrEmpty(p.Idade) ? p.Idade : "Não informado")</p></div>
                         <div class="detail-field full"><label>Ração</label><p>@(!string.IsNullOrEmpty(p.Racao) ? p.Racao : "Não informado")</p></div>
+                        <div class="detail-field"><label>Medicamento</label><p>@medicamentoHtml</p></div>
                         <div class="detail-field"><label>Última Vermifugação</label><p>@(!string.IsNullOrEmpty(p.Vermifugacao) ? p.Vermifugacao : "Não registrado")</p></div>
                         <div class="detail-field"><label>Última Antipulgas</label><p>@(!string.IsNullOrEmpty(p.Antipulgas) ? p.Antipulgas : "Não registrado")</p></div>
                         <div class="detail-field full"><label>Última Vacinação</label><p>@(!string.IsNullOrEmpty(p.Vacinacao) ? p.Vacinacao : "Não registrado")</p></div>
                     </div>
+                    @if (tutorCliente != null)
+                    {
+                    <div class="detail-actions">
+                        <a class="btn-secondary" href="@Url.Action("Index", "Clientes", new { detalheId = tutorCliente.Id })">
+                            <i class="ti ti-user"></i> Visualizar Tutor
+                        </a>
+                    </div>
+                    }
                 </div>
             }
             else
@@ -61,3 +87,19 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+<script>
+let searchTimeout;
+function filterPets(value) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (value) params.set('search', value);
+        else params.delete('search');
+        params.delete('detalheId');
+        window.location.href = '?' + params.toString();
+    }, 400);
+}
+</script>
+}

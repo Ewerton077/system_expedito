@@ -9,10 +9,12 @@ namespace SantoExpedito.Services;
 public class CadastroService : ICadastroService
 {
     private readonly AppDbContext _context;
+    private readonly IAgendamentoService _agendamentoService;
 
-    public CadastroService(AppDbContext context)
+    public CadastroService(AppDbContext context, IAgendamentoService agendamentoService)
     {
         _context = context;
+        _agendamentoService = agendamentoService;
     }
 
     public async Task<string> CreateClienteAsync(CadastroViewModel model)
@@ -23,7 +25,13 @@ public class CadastroService : ICadastroService
         var stored = await _context.Clientes.ToListAsync();
         int maxId = stored.Count > 0 ? stored.Max(c => c.Id) : 0;
 
-        var datasBanhoStr = string.Join(",", model.DatasBanho ?? new List<string>());
+        var diasBanho = model.DatasBanho
+            .Select(d => d.Split('/')[0])
+            .ToList();
+        var datasBanhoStr = string.Join(",", diasBanho);
+
+        var hoje = DateTime.Now;
+        var datasVencStr = $"{hoje.AddDays(30).Day:D2}/{hoje.AddDays(30).Month:D2}/{hoje.AddDays(30).Year}";
 
         foreach (var pet in model.Pets)
         {
@@ -49,7 +57,8 @@ public class CadastroService : ICadastroService
                 Cpf = model.Responsavel.Cpf,
                 Email = model.Responsavel.Email,
                 Cep = model.Responsavel.Cep,
-                PetIdade = pet.Idade
+                PetIdade = pet.Idade,
+                DataCadastro = DateTime.Now
             };
             _context.Clientes.Add(cliente);
 
@@ -63,37 +72,33 @@ public class CadastroService : ICadastroService
                 Vermifugacao = pet.Vermifugacao,
                 Antipulgas = pet.Antipulgas,
                 Vacinacao = pet.Vacinacao,
-                Idade = pet.Idade
+                Idade = pet.Idade,
+                Medicamento = pet.Medicamento == "sim",
+                MedicamentoNome = pet.Medicamento == "sim" ? pet.MedicamentoNome : null
             };
             _context.Pets.Add(petEntity);
         }
 
         await _context.SaveChangesAsync();
 
+        var vencimento = new Vencimento
+        {
+            Cliente = model.Responsavel.Nome,
+            Plano = model.Plano,
+            VencimentoData = datasVencStr,
+            Valor = model.Valor,
+            Status = "Pendente"
+        };
+        _context.Vencimentos.Add(vencimento);
+        await _context.SaveChangesAsync();
+
         if (model.DatasBanho != null && model.DatasBanho.Count > 0)
         {
             foreach (var pet in model.Pets)
             {
-                foreach (var data in model.DatasBanho)
-                {
-                    var existe = await _context.Agendamentos.AnyAsync(a =>
-                        a.Data == data && a.Pet == pet.Nome && a.Tutor == model.Responsavel.Nome);
-
-                    if (!existe)
-                    {
-                        _context.Agendamentos.Add(new Agendamento
-                        {
-                            Data = data,
-                            Horario = "08:00",
-                            Pet = pet.Nome,
-                            Tutor = model.Responsavel.Nome,
-                            Plano = model.Plano,
-                            Status = "Em espera"
-                        });
-                    }
-                }
+                await _agendamentoService.GerarAgendamentosRecorrentesAsync(
+                    model.Responsavel.Nome, pet.Nome, model.Plano, datasBanhoStr, 12);
             }
-            await _context.SaveChangesAsync();
         }
 
         return "Cliente cadastrado com sucesso!";

@@ -32,4 +32,20 @@ public class AgendamentosController : Controller
         await _agendamentoService.UpdateStatusAsync(id, status);
         return RedirectToAction("Index");
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Remarcar(int id, string novaData, string novoHorario)
+    {
+        await _agendamentoService.RemarcarAsync(id, novaData, novoHorario);
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BanhoUnico(string tutor, string endereco, string telefone, string petNome, string data, string horario)
+    {
+        await _agendamentoService.CriarBanhoUnicoAsync(tutor, endereco, telefone, petNome, data, horario);
+        return Ok(new { message = "Banho único agendado com sucesso!" });
+    }
 }

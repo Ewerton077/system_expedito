@@ -95,6 +95,14 @@
                             </div>
                         </div>
                         <div class="form-group full"><label>Ração que consome</label><input type="text" class="form-control pet-racao" placeholder="Ex: Golden Special, Premier..." required></div>
+                        <div class="form-group full">
+                            <label>Consome medicamento?</label>
+                            <div class="radio-group">
+                                <label class="radio-label"><input type="radio" name="medicamento" class="pet-medicamento" value="sim"><i class="ti ti-circle-check"></i> Sim</label>
+                                <label class="radio-label"><input type="radio" name="medicamento" class="pet-medicamento" value="nao" checked><i class="ti ti-circle-x"></i> Não</label>
+                            </div>
+                            <input type="text" class="form-control pet-medicamento-nome" placeholder="Nome do medicamento" style="display:none;margin-top:8px">
+                        </div>
                         <div class="form-group datepicker-group">
                             <label>Última Vermifugação <span class="label-optional">(opcional)</span></label>
                             <div class="datepicker-wrapper">
@@ -231,6 +239,14 @@ document.getElementById('btnAdicionarPet').addEventListener('click', () => {
             <div class="form-group"><label>Porte</label><select class="form-control pet-porte" required>${document.querySelector('.pet-porte').innerHTML}</select></div>
         </div>
         <div class="form-group full"><label>Ração que consome</label><input type="text" class="form-control pet-racao" placeholder="Ex: Golden Special, Premier..." required></div>
+        <div class="form-group full">
+            <label>Consome medicamento?</label>
+            <div class="radio-group">
+                <label class="radio-label"><input type="radio" class="pet-medicamento" value="sim"><i class="ti ti-circle-check"></i> Sim</label>
+                <label class="radio-label"><input type="radio" class="pet-medicamento" value="nao" checked><i class="ti ti-circle-x"></i> Não</label>
+            </div>
+            <input type="text" class="form-control pet-medicamento-nome" placeholder="Nome do medicamento" style="display:none;margin-top:8px">
+        </div>
         <div class="form-group datepicker-group">
             <label>Última Vermifugação <span class="label-optional">(opcional)</span></label>
             <div class="datepicker-wrapper">
@@ -403,6 +419,14 @@ function initDatepickers(container) {
 }
 initDatepickers(document);
 
+document.addEventListener('change', e => {
+    if (e.target.classList.contains('pet-medicamento')) {
+        const container = e.target.closest('.pet-entry') || document;
+        const nomeField = container.querySelector('.pet-medicamento-nome');
+        if (nomeField) nomeField.style.display = e.target.value === 'sim' ? 'block' : 'none';
+    }
+});
+
 document.getElementById('formCadastro').addEventListener('submit', e => {
     e.preventDefault();
     const campoValor = document.getElementById('campoValor');
@@ -426,7 +450,9 @@ document.getElementById('formCadastro').addEventListener('submit', e => {
         const petVermifugacao = el.querySelector('.pet-vermifugacao')?.value || '';
         const petAntipulgas = el.querySelector('.pet-antipulgas')?.value || '';
         const petVacinacao = el.querySelector('.pet-vacinacao')?.value || '';
-        if (petNome && petIdade && petRaca && petPorte) pets.push({ nome: petNome, idade: petIdade, raca: petRaca, porte: petPorte, racao: petRacao, vermifugacao: petVermifugacao, antipulgas: petAntipulgas, vacinacao: petVacinacao });
+        const petMedicamento = el.querySelector('.pet-medicamento:checked')?.value || 'nao';
+        const petMedicamentoNome = el.querySelector('.pet-medicamento-nome')?.value || '';
+        if (petNome && petIdade && petRaca && petPorte) pets.push({ nome: petNome, idade: petIdade, raca: petRaca, porte: petPorte, racao: petRacao, vermifugacao: petVermifugacao, antipulgas: petAntipulgas, vacinacao: petVacinacao, medicamento: petMedicamento, medicamentoNome: petMedicamentoNome });
     });
     if (pets.length === 0) { alert('Adicione ao menos um pet.'); return; }
     const plano = document.querySelector('input[name="plano"]:checked').value;

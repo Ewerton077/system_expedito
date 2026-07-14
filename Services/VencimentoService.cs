@@ -20,13 +20,13 @@ public class VencimentoService : IVencimentoService
 
         return new VencimentoListDto
         {
-            Pagos = vencimentos.Where(v => v.Status == "pago")
+            Pagos = vencimentos.Where(v => string.Equals(v.Status, "Pago", StringComparison.OrdinalIgnoreCase))
                 .Select(v => new VencimentoItemDto
                 {
                     Id = v.Id, Cliente = v.Cliente, Plano = v.Plano,
                     VencimentoData = v.VencimentoData, Valor = v.Valor, Status = v.Status
                 }).ToList(),
-            Pendentes = vencimentos.Where(v => v.Status == "pendente")
+            Pendentes = vencimentos.Where(v => string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase))
                 .Select(v => new VencimentoItemDto
                 {
                     Id = v.Id, Cliente = v.Cliente, Plano = v.Plano,

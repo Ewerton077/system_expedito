@@ -51,8 +51,6 @@ public class Cliente
     [Column(TypeName = "decimal(10,2)")]
     public decimal Valor { get; set; }
 
-    public string? DiasBanho { get; set; }
-
     public string? DatasBanho { get; set; }
 
     [MaxLength(20)]
@@ -67,16 +65,7 @@ public class Cliente
     [MaxLength(100)]
     public string? Email { get; set; }
 
-    public List<string> ObterDiasBanho()
-    {
-        if (string.IsNullOrEmpty(DiasBanho)) return new List<string>();
-        return DiasBanho.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-    }
-
-    public void DefinirDiasBanho(List<string> dias)
-    {
-        DiasBanho = string.Join(",", dias);
-    }
+    public DateTime? DataCadastro { get; set; }
 
     public List<string> ObterDatasBanho()
     {

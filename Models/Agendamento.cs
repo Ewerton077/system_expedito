@@ -19,9 +19,16 @@ public class Agendamento
     [MaxLength(100)]
     public string? Tutor { get; set; }
 
+    [MaxLength(200)]
+    public string? Endereco { get; set; }
+
+    [MaxLength(20)]
+    public string? Telefone { get; set; }
+
     [MaxLength(20)]
     public string? Plano { get; set; }
 
     [MaxLength(20)]
     public string? Status { get; set; }
+
 }

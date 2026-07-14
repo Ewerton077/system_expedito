@@ -10,23 +10,53 @@ public class ClientesController : Controller
 {
     private readonly IClienteService _clienteService;
     private readonly IPetService _petService;
+    private readonly IAgendamentoService _agendamentoService;
 
-    public ClientesController(IClienteService clienteService, IPetService petService)
+    public ClientesController(IClienteService clienteService, IPetService petService, IAgendamentoService agendamentoService)
     {
         _clienteService = clienteService;
         _petService = petService;
+        _agendamentoService = agendamentoService;
     }
 
-    public async Task<IActionResult> Index(string? plano, int? detalheId, int? editId)
+    public async Task<IActionResult> Index(string? plano, int? detalheId, int? editId, string? search)
     {
-        var clientes = await _clienteService.GetAllAsync();
+        var clientes = await _clienteService.GetAllAsync(search);
         ViewBag.PlanoAtivo = plano ?? "Mensal";
+        ViewBag.SearchTerm = search;
         ViewBag.Clientes = clientes;
+
+        var agora = DateTime.Now;
+        var todosAgendamentos = await _agendamentoService.GetAllAsync();
+        var banhosRestantesDict = new Dictionary<int, int>();
+        foreach (var c in clientes)
+        {
+            var banhosPorMes = c.Plano == "Mensal" ? 4 : 2;
+            var concluidos = todosAgendamentos.Count(a =>
+                a.Status == "Concluído" &&
+                a.Tutor == c.Nome &&
+                a.Pet == c.PetNome &&
+                !string.IsNullOrEmpty(a.Data) &&
+                a.Data.EndsWith($"/{agora.Month:D2}/{agora.Year}"));
+            banhosRestantesDict[c.Id] = Math.Max(0, banhosPorMes - concluidos);
+        }
+        ViewBag.BanhosRestantesDict = banhosRestantesDict;
 
         if (editId.HasValue)
             ViewBag.ClienteEdit = clientes.FirstOrDefault(c => c.Id == editId.Value);
         else if (detalheId.HasValue)
-            ViewBag.ClienteDetalhe = clientes.FirstOrDefault(c => c.Id == detalheId.Value);
+        {
+            var clienteDetalhe = clientes.FirstOrDefault(c => c.Id == detalheId.Value);
+            ViewBag.ClienteDetalhe = clienteDetalhe;
+            if (clienteDetalhe?.DataCadastro.HasValue == true)
+            {
+                var dataVenc = clienteDetalhe.DataCadastro.Value.AddDays(30);
+                var diasRestantes = (dataVenc - DateTime.Now).Days;
+                ViewBag.DataVencimento = dataVenc;
+                ViewBag.DiasRestantes = diasRestantes;
+                ViewBag.PlanoVencido = diasRestantes < 0;
+            }
+        }
 
         return View();
     }
@@ -38,7 +68,7 @@ public class ClientesController : Controller
         int banhosRestantes, bool taxidog, bool tosa, decimal valor,
         string? petRacao, string? petVermifugacao, string? petAntipulgas, string? petVacinacao,
         string? cpf, string? email, string? petIdade, string? cep,
-        string? diasBanho, string? datasBanho)
+        string? datasBanho)
     {
         if (id == 0)
         {
@@ -50,7 +80,8 @@ public class ClientesController : Controller
                 PetRacao = petRacao, PetVermifugacao = petVermifugacao,
                 PetAntipulgas = petAntipulgas, PetVacinacao = petVacinacao,
                 Cpf = cpf, Email = email, PetIdade = petIdade, Cep = cep,
-                DiasBanho = diasBanho, DatasBanho = datasBanho
+                DatasBanho = datasBanho,
+                DataCadastro = DateTime.Now
             });
         }
         else
@@ -65,7 +96,7 @@ public class ClientesController : Controller
             existing.PetRacao = petRacao; existing.PetVermifugacao = petVermifugacao;
             existing.PetAntipulgas = petAntipulgas; existing.PetVacinacao = petVacinacao;
             existing.Cpf = cpf; existing.Email = email; existing.PetIdade = petIdade; existing.Cep = cep;
-            existing.DiasBanho = diasBanho; existing.DatasBanho = datasBanho;
+            existing.DatasBanho = datasBanho;
 
             await _clienteService.UpdateAsync(existing);
         }

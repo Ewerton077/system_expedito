@@ -68,16 +68,29 @@
     <div class="dashboard-grid">
         <div class="card">
             <div class="card-header"><h2>Banhos Agendados Hoje (@hojeStr)</h2></div>
-            <table>
-                <thead><tr><th>Horário</th><th>Pet</th><th>Tutor</th><th>Plano</th></tr></thead>
+            <div class="banho-filters">
+                <button class="banho-filter-btn active" onclick="filtrarBanhos('todos', this)">Todos (@hojeAgendamentos.Count)</button>
+                <button class="banho-filter-btn espera" onclick="filtrarBanhos('Em espera', this)">Em espera (@hojeAgendamentos.Count(a => a.Status == "Em espera"))</button>
+                <button class="banho-filter-btn processo" onclick="filtrarBanhos('Em processo', this)">Em processo (@hojeAgendamentos.Count(a => a.Status == "Em processo"))</button>
+                <button class="banho-filter-btn concluido" onclick="filtrarBanhos('Concluído', this)">Concluído (@hojeAgendamentos.Count(a => a.Status == "Concluído"))</button>
+            </div>
+            <table id="tabelaBanhosHoje">
+                <thead><tr><th>Horário</th><th>Pet</th><th>Tutor</th><th>Plano</th><th>Status</th></tr></thead>
                 <tbody>
                     @if (hojeAgendamentos.Count == 0)
                     {
-                        <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum banho pendente para hoje</td></tr>
+                        <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum banho pendente para hoje</td></tr>
                     }
                     @foreach (var a in hojeAgendamentos)
                     {
-                        <tr><td>@a.Horario</td><td>@a.Pet</td><td>@a.Tutor</td><td>@a.Plano</td></tr>
+                        var statusClass = a.Status == "Em espera" ? "espera" : a.Status == "Em processo" ? "processo" : "concluido";
+                        <tr data-status="@a.Status">
+                            <td>@a.Horario</td>
+                            <td>@a.Pet</td>
+                            <td>@a.Tutor</td>
+                            <td>@a.Plano</td>
+                            <td><span class="agenda-list-status @statusClass">@a.Status</span></td>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -99,6 +112,18 @@
 
 @section Scripts {
 <script>
+function filtrarBanhos(status, btn) {
+    document.querySelectorAll('.banho-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const rows = document.querySelectorAll('#tabelaBanhosHoje tbody tr');
+    rows.forEach(row => {
+        if (status === 'todos' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
 new Chart(document.getElementById('plansChart'), {
     type: 'doughnut',
     data: {

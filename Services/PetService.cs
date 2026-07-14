@@ -14,9 +14,22 @@ public class PetService : IPetService
         _context = context;
     }
 
-    public async Task<List<Pet>> GetAllAsync()
+    public async Task<List<Pet>> GetAllAsync(string? searchTerm = null)
     {
-        return await _context.Pets.OrderBy(p => p.Nome).ToListAsync();
+        var query = _context.Pets.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(p =>
+                p.Nome.ToLower().Contains(term) ||
+                (p.Tutor != null && p.Tutor.ToLower().Contains(term)) ||
+                (p.Raca != null && p.Raca.ToLower().Contains(term)) ||
+                (p.Porte != null && p.Porte.ToLower().Contains(term))
+            );
+        }
+
+        return await query.OrderBy(p => p.Nome).ToListAsync();
     }
 
     public async Task<Pet?> GetByIdAsync(int id)

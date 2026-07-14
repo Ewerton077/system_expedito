@@ -28,17 +28,12 @@ public class DashboardService : IDashboardService
         try
         {
             var conn = _context.Database.GetConnectionString();
-            using var sqlConn = new Microsoft.Data.SqlClient.SqlConnection(conn);
-            await sqlConn.OpenAsync();
-            using var cmd = sqlConn.CreateCommand();
-            cmd.CommandText = @"
-                SELECT SUM(size * 8 / 1024.0)
-                FROM sys.database_files
-                WHERE type_desc = 'ROWS'";
-            var result = await cmd.ExecuteScalarAsync();
-            if (result != null && result != DBNull.Value)
-                dbSize = System.Convert.ToDouble(result);
-            await sqlConn.CloseAsync();
+            var dataSource = conn?.Split(';')
+                .Select(p => p.Trim())
+                .FirstOrDefault(p => p.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase))
+                ?.Substring("Data Source=".Length);
+            if (!string.IsNullOrEmpty(dataSource) && System.IO.File.Exists(dataSource))
+                dbSize = new System.IO.FileInfo(dataSource).Length / (1024.0 * 1024.0);
         }
         catch { }
 
@@ -48,9 +43,9 @@ public class DashboardService : IDashboardService
             TotalPets = await _context.Pets.CountAsync(),
             PlanosMensais = clientes.Count(c => c.Plano == "Mensal"),
             PlanosQuinzenais = clientes.Count(c => c.Plano == "Quinzenal"),
-            PagamentosPagos = vencimentos.Count(v => v.Status == "pago"),
-            PagamentosPendentes = vencimentos.Count(v => v.Status == "pendente"),
-            PagamentosAtrasados = vencimentos.Count(v => v.Status == "pendente"),
+            PagamentosPagos = vencimentos.Count(v => string.Equals(v.Status, "Pago", StringComparison.OrdinalIgnoreCase)),
+            PagamentosPendentes = vencimentos.Count(v => string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase)),
+            PagamentosAtrasados = vencimentos.Count(v => string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase) && string.Compare(v.VencimentoData, hojeStr) < 0),
             AgendamentosHoje = await _context.Agendamentos
                 .Where(a => a.Data == hojeStr && a.Status != "Concluído" && a.Status != "Removido")
                 .ToListAsync(),

@@ -18,11 +18,12 @@ public class LoginController : Controller
     public IActionResult Index()
     {
         if (User.Identity?.IsAuthenticated == true)
-            return RedirectToAction("Index", User.FindFirst("UsuarioTipo")?.Value == "root" ? "Admin" : "Dashboard");
+            return RedirectToAction("Index", "Dashboard");
         return View();
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(LoginViewModel model)
     {
         if (!ModelState.IsValid)
@@ -37,7 +38,7 @@ public class LoginController : Controller
         var principal = _authService.CreatePrincipal(model.Username);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        return RedirectToAction("Index", model.Username == "root" ? "Admin" : "Dashboard");
+        return RedirectToAction("Index", "Dashboard");
     }
 
     public async Task<IActionResult> Logout()

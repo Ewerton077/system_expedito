@@ -34,4 +34,9 @@ public class Pet
 
     [MaxLength(20)]
     public string? Idade { get; set; }
+
+    public bool Medicamento { get; set; }
+
+    [MaxLength(100)]
+    public string? MedicamentoNome { get; set; }
 }

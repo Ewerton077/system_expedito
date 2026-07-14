@@ -8,15 +8,31 @@ namespace SantoExpedito.Services;
 public class ClienteService : IClienteService
 {
     private readonly AppDbContext _context;
+    private readonly IAgendamentoService _agendamentoService;
 
-    public ClienteService(AppDbContext context)
+    public ClienteService(AppDbContext context, IAgendamentoService agendamentoService)
     {
         _context = context;
+        _agendamentoService = agendamentoService;
     }
 
-    public async Task<List<Cliente>> GetAllAsync()
+    public async Task<List<Cliente>> GetAllAsync(string? searchTerm = null)
     {
-        return await _context.Clientes.OrderBy(c => c.Nome).ToListAsync();
+        var query = _context.Clientes.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(c =>
+                c.Nome.ToLower().Contains(term) ||
+                (c.PetNome != null && c.PetNome.ToLower().Contains(term)) ||
+                (c.Telefone != null && c.Telefone.Contains(term)) ||
+                (c.Email != null && c.Email.ToLower().Contains(term)) ||
+                (c.PetRaca != null && c.PetRaca.ToLower().Contains(term))
+            );
+        }
+
+        return await query.OrderBy(c => c.Nome).ToListAsync();
     }
 
     public async Task<Cliente?> GetByIdAsync(int id)
@@ -47,7 +63,6 @@ public class ClienteService : IClienteService
         existing.Taxidog = cliente.Taxidog;
         existing.Tosa = cliente.Tosa;
         existing.Valor = cliente.Valor;
-        existing.DiasBanho = cliente.DiasBanho;
         existing.DatasBanho = cliente.DatasBanho;
         existing.PetRacao = cliente.PetRacao;
         existing.PetVermifugacao = cliente.PetVermifugacao;
@@ -60,6 +75,12 @@ public class ClienteService : IClienteService
 
         await UpdatePetAsync(existing);
         await _context.SaveChangesAsync();
+
+        if (!string.IsNullOrWhiteSpace(existing.DatasBanho) && !string.IsNullOrWhiteSpace(existing.PetNome))
+        {
+            await _agendamentoService.GerarAgendamentosRecorrentesAsync(
+                existing.Nome, existing.PetNome, existing.Plano ?? "Mensal", existing.DatasBanho, 12);
+        }
     }
 
     public async Task DeleteAsync(int id)
@@ -141,7 +162,6 @@ public class ClienteService : IClienteService
             bool taxidog = rng.Next(2) == 0;
             bool tosa = rng.Next(2) == 0;
             decimal valor = plano == "Mensal" ? 180.00m : 110.00m;
-            string diasBanho = "Segunda,Terça,Quarta,Quinta,Sexta";
             int banhosPorMes = plano == "Mensal" ? 4 : 2;
 
             for (int p = 0; p < 3; p++)
@@ -173,7 +193,6 @@ public class ClienteService : IClienteService
                     PetAntipulgas = petAntipulgas,
                     PetVacinacao = petVacinacao,
                     Valor = valor,
-                    DiasBanho = diasBanho,
                     Cpf = cpf,
                     Email = email,
                     PetIdade = petIdade,
@@ -191,7 +210,9 @@ public class ClienteService : IClienteService
                     Vermifugacao = petVermifugacao,
                     Antipulgas = petAntipulgas,
                     Vacinacao = petVacinacao,
-                    Idade = petIdade
+                    Idade = petIdade,
+                    Medicamento = rng.Next(2) == 0,
+                    MedicamentoNome = rng.Next(2) == 0 ? new[] {"Antialérgico","Antibiótico","Anti-inflamatório","Vermífugo","Cardíaco","Ansiolítico"}[rng.Next(6)] : null
                 };
                 _context.Pets.Add(pet);
             }

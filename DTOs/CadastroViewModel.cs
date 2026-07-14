@@ -31,4 +31,6 @@ public class PetViewModel
     public string? Vermifugacao { get; set; }
     public string? Antipulgas { get; set; }
     public string? Vacinacao { get; set; }
+    public string Medicamento { get; set; } = "nao";
+    public string? MedicamentoNome { get; set; }
 }

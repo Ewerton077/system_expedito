@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -35,8 +35,18 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureDeleted();
     context.Database.Migrate();
+
+    var mockClientes = context.Clientes.Where(c => c.Nome.StartsWith("[MOCK]")).ToList();
+    if (mockClientes.Count > 0)
+    {
+        var mockNomes = mockClientes.Select(c => c.Nome).ToHashSet();
+        context.Agendamentos.RemoveRange(context.Agendamentos.Where(a => mockNomes.Contains(a.Tutor ?? "")));
+        context.Vencimentos.RemoveRange(context.Vencimentos.Where(v => mockNomes.Contains(v.Cliente ?? "")));
+        context.Pets.RemoveRange(context.Pets.Where(p => mockNomes.Contains(p.Tutor ?? "")));
+        context.Clientes.RemoveRange(mockClientes);
+        context.SaveChanges();
+    }
 
     if (!context.AdminUsers.Any())
     {

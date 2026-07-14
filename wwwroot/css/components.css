@@ -7,6 +7,11 @@
 .btn-secondary:hover{ border-color:var(--text-muted); color:var(--text); }
 .page-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
 .page-header h2{ font-family:var(--font-title); font-size:24px; }
+.search-box{ position:relative; display:flex; align-items:center; }
+.search-box .ti-search{ position:absolute; left:14px; color:var(--text-muted); font-size:18px; pointer-events:none; }
+.search-input{ border:1.5px solid var(--border); background:var(--surface); border-radius:10px; padding:10px 14px 10px 40px; font-size:13px; color:var(--text); outline:none; transition:var(--transition); width:260px; font-family:var(--font-body); }
+.search-input:focus{ border-color:var(--red); box-shadow:0 0 0 3px var(--red-light); }
+.search-input::placeholder{ color:var(--text-muted); }
 table{ width:100%; border-collapse:collapse; }
 thead{ background:var(--surface-2); }
 th{ text-align:left; padding:14px 20px; font-size:12px; text-transform:uppercase; color:var(--text-muted); }

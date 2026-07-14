@@ -94,6 +94,7 @@ canvas{ padding:20px; max-height:320px; }
 .agenda-list-plano{ font-size:10px; font-weight:600; padding:4px 8px; border-radius:20px; text-transform:uppercase; }
 .agenda-list-plano.mensal{ background:var(--red-light); color:var(--red); }
 .agenda-list-plano.quinzenal{ background:#F5F2F0; color:var(--text-secondary); }
+.agenda-list-plano.unico{ background:#F3E8FF; color:#7C3AED; }
 .agenda-list-status{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; white-space:nowrap; }
 .agenda-list-status.espera{ background:#FFF4D9; color:#C28A00; }
 .agenda-list-status.processo{ background:#EFF6FF; color:#2563EB; }
@@ -121,6 +122,12 @@ canvas{ padding:20px; max-height:320px; }
 .agenda-status-btn.active-concluido{ border-color:#1B7A4A; background:#E8F5EE; color:#1B7A4A; }
 .agenda-status-btn.remover-btn{ flex:0.5; border-color:#ef4444; color:#ef4444; }
 .agenda-status-btn.remover-btn:hover{ background:#FEE2E2; }
+.agenda-status-btn.remarcar-btn{ flex:0.5; border-color:#8B5CF6; color:#8B5CF6; }
+.agenda-status-btn.remarcar-btn:hover{ background:#F3E8FF; }
+.remarcar-form{ padding:16px 22px 20px; border-top:1px solid var(--border); background:var(--bg); }
+.remarcar-fields{ display:flex; gap:12px; align-items:flex-end; }
+.remarcar-field{ flex:1; }
+.remarcar-field label{ display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px; }
 .pag-menu{ display:flex; gap:4px; margin-bottom:20px; background:var(--surface-2); border-radius:10px; padding:4px; width:fit-content; }
 .pag-menu-btn{ border:none; background:none; padding:10px 22px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text-secondary); border-radius:8px; transition:var(--transition); }
 .pag-menu-btn.active{ background:var(--surface); color:var(--red); box-shadow:var(--shadow-sm); }
@@ -161,3 +168,10 @@ canvas{ padding:20px; max-height:320px; }
 .db-stat-info{ display:flex; flex-direction:column; gap:2px; }
 .db-stat-info span{ font-size:12px; color:var(--text-muted); }
 .db-stat-info strong{ font-family:var(--font-title); font-size:18px; color:var(--text); }
+.banho-filters{ display:flex; gap:6px; padding:14px 22px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.banho-filter-btn{ border:1.5px solid var(--border); background:var(--surface); padding:7px 14px; border-radius:20px; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-secondary); transition:var(--transition); font-family:var(--font-body); }
+.banho-filter-btn:hover{ border-color:var(--red); color:var(--red); }
+.banho-filter-btn.active{ border-color:var(--red); background:var(--red-light); color:var(--red); }
+.banho-filter-btn.espera.active{ border-color:#C28A00; background:#FFF4D9; color:#C28A00; }
+.banho-filter-btn.processo.active{ border-color:#2563EB; background:#EFF6FF; color:#2563EB; }
+.banho-filter-btn.concluido.active{ border-color:#1B7A4A; background:#E8F5EE; color:#1B7A4A; }

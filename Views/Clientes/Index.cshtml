@@ -4,6 +4,7 @@
     var planoAtivo = ViewBag.PlanoAtivo as string ?? "Mensal";
     var clienteDetalhe = ViewBag.ClienteDetalhe as SantoExpedito.Models.Cliente;
     var clienteEdit = ViewBag.ClienteEdit as SantoExpedito.Models.Cliente;
+    var searchTerm = ViewBag.SearchTerm as string ?? "";
     var filtrados = clientes.Where(c => c.Plano == planoAtivo).ToList();
     var mockMsg = TempData["MockMessage"] as string;
 }
@@ -16,6 +17,12 @@
     <div class="page-header">
         <h2>Clientes</h2>
         <div style="display:flex;gap:8px;align-items:center">
+            <div class="search-box">
+                <i class="ti ti-search"></i>
+                <input type="text" class="search-input" id="clienteSearch" placeholder="Buscar cliente, pet, telefone..."
+                       value="@searchTerm"
+                       oninput="filterClientes(this.value)">
+            </div>
             <form method="post" action="@Url.Action("GerarMock","Clientes")" style="display:inline" onsubmit="return confirm('Gerar 300 clientes mock com 3 pets cada?')">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn-mock"><i class="ti ti-adjustments"></i> Gerar 300 Mock</button>
@@ -33,9 +40,9 @@
         <div class="clientes-list-panel">
             <div class="clientes-tabs">
                 <a class="tab-btn @(planoAtivo == "Mensal" ? "active" : "")"
-                   href="@Url.Action("Index", new { plano = "Mensal" })">Mensal</a>
+                   href="@Url.Action("Index", new { plano = "Mensal", search = searchTerm })">Mensal</a>
                 <a class="tab-btn @(planoAtivo == "Quinzenal" ? "active" : "")"
-                   href="@Url.Action("Index", new { plano = "Quinzenal" })">Quinzenal</a>
+                   href="@Url.Action("Index", new { plano = "Quinzenal", search = searchTerm })">Quinzenal</a>
             </div>
             <div class="clientes-items">
                 @if (filtrados.Count == 0)
@@ -51,7 +58,7 @@
                     var tagClass = c.Plano == "Mensal" ? "mensal" : "quinzenal";
                     var isSelected = clienteDetalhe?.Id == c.Id || clienteEdit?.Id == c.Id;
                     <div class="cliente-item @(isSelected ? "active" : "")"
-                         onclick="location.href='@Url.Action("Index", new { plano = planoAtivo, detalheId = c.Id })'">
+                         onclick="location.href='@Url.Action("Index", new { plano = planoAtivo, detalheId = c.Id, search = searchTerm })'">
                         <div class="avatar-letter">@iniciais</div>
                         <div class="cliente-item-info">
                             <strong>@c.Nome</strong>
@@ -121,11 +128,10 @@
                             <div class="detail-field"><label>CPF</label><input type="text" class="form-control" name="cpf" value="@c.Cpf"></div>
                             <div class="detail-field"><label>Email</label><input type="email" class="form-control" name="email" value="@c.Email"></div>
                             <div class="detail-field"><label>Idade do Pet</label><input type="text" class="form-control" name="petIdade" value="@c.PetIdade"></div>
-                            <div class="detail-field full"><label>Dias de Banho</label><input type="text" class="form-control" name="diasBanho" value="@c.DiasBanho" placeholder="Segunda,Terça,Quarta"></div>
-                            <div class="detail-field full"><label>Datas de Banho</label><input type="text" class="form-control" name="datasBanho" value="@c.DatasBanho" placeholder="01/06/2026,08/06/2026"></div>
+                            <div class="detail-field full"><label>Dias do Mês (Banho)</label><input type="text" class="form-control" name="datasBanho" value="@c.DatasBanho" placeholder="10,20 (dias do mês, recorrente)"></div>
                         </div>
                         <div class="detail-actions">
-                            <a class="btn-secondary" href="@Url.Action("Index", new { plano = planoAtivo, detalheId = c.Id })">Cancelar</a>
+                            <a class="btn-secondary" href="@Url.Action("Index", new { plano = planoAtivo, detalheId = c.Id, search = searchTerm })">Cancelar</a>
                             <button type="submit" class="btn-primary"><i class="ti ti-device-floppy"></i> Salvar</button>
                         </div>
                     </form>
@@ -138,9 +144,18 @@
                 if (iniciais.Length > 2) iniciais = iniciais[..2];
                 var taxidogHtml = c.Taxidog ? "<span class=\"tag-yes\">Incluso</span>" : "<span class=\"tag-no\">Não incluso</span>";
                 var tosaHtml = c.Tosa ? "<span class=\"tag-yes\">Incluso</span>" : "<span class=\"tag-no\">Não incluso</span>";
-                var banhosStatus = c.BanhosRestantes > 0 ? $"{c.BanhosRestantes} banho{(c.BanhosRestantes > 1 ? "s" : "")} restante{(c.BanhosRestantes > 1 ? "s" : "")}" : "Sem banhos restantes";
-                var diasBanhoHtml = !string.IsNullOrEmpty(c.DiasBanho) ? string.Join(", ", c.DiasBanho.Split(',')) : "Não definido";
+                var banhosCalc = ViewBag.BanhosRestantesDict != null && ((Dictionary<int, int>)ViewBag.BanhosRestantesDict).ContainsKey(c.Id) ? ((Dictionary<int, int>)ViewBag.BanhosRestantesDict)[c.Id] : 0;
+                var banhosStatus = $"Banhos Restantes ({banhosCalc}) - Mês";
                 var datasBanhoHtml = !string.IsNullOrEmpty(c.DatasBanho) ? string.Join(", ", c.DatasBanho.Split(',')) : "Nenhuma data selecionada";
+                var dataCadastro = c.DataCadastro?.ToString("dd/MM/yyyy") ?? "Não informado";
+                var plandoVencido = ViewBag.PlanoVencido as bool? ?? false;
+                var diasRestantes = ViewBag.DiasRestantes as int? ?? 0;
+                var dataVencimento = ViewBag.DataVencimento as DateTime?;
+                var vencimentoHtml = dataVencimento.HasValue
+                    ? (plandoVencido
+                        ? $"<span style=\"color:#EF4444;font-weight:700\">Vencido em {dataVencimento.Value.ToString("dd/MM/yyyy")}</span>"
+                        : $"<span style=\"color:#1B7A4A;font-weight:700\">Válido até {dataVencimento.Value.ToString("dd/MM/yyyy")} ({diasRestantes} dias)</span>")
+                    : "Não disponível";
                 <div class="detail-content">
                     <div class="detail-header">
                         <div class="avatar-letter">@iniciais</div>
@@ -153,14 +168,15 @@
                         <div class="detail-field"><label>Pet</label><p>@c.PetNome (@c.Porte)</p></div>
                         <div class="detail-field"><label>Raça</label><p>@c.PetRaca</p></div>
                         <div class="detail-field"><label>Banhos Restantes</label><p>@banhosStatus</p></div>
-                        <div class="detail-field"><label>Dias de Banho</label><p>@diasBanhoHtml</p></div>
-                        <div class="detail-field"><label>Datas de Banho</label><p>@datasBanhoHtml</p></div>
+                        <div class="detail-field"><label>Data de Cadastro</label><p>@dataCadastro</p></div>
+                        <div class="detail-field"><label>Vencimento do Plano</label><p>@Html.Raw(vencimentoHtml)</p></div>
+                        <div class="detail-field"><label>Dias do Mês (Banho)</label><p>@datasBanhoHtml</p></div>
                         <div class="detail-field"><label>Taxidog</label><p>@Html.Raw(taxidogHtml)</p></div>
                         <div class="detail-field"><label>Tosa</label><p>@Html.Raw(tosaHtml)</p></div>
                         <div class="detail-field full"><label>Valor do Plano</label><p style="font-size:22px;font-weight:700;color:var(--red)">R$ @c.Valor.ToString("F2")</p></div>
                     </div>
                     <div class="detail-actions">
-                        <a class="btn-secondary" href="@Url.Action("Index", new { plano = planoAtivo, editId = c.Id })"><i class="ti ti-pencil"></i> Editar Cliente</a>
+                        <a class="btn-secondary" href="@Url.Action("Index", new { plano = planoAtivo, editId = c.Id, search = searchTerm })"><i class="ti ti-pencil"></i> Editar Cliente</a>
                         <form method="post" action="@Url.Action("Excluir", "Clientes")" style="display:inline" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?')">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@c.Id" />
@@ -179,3 +195,20 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+<script>
+let searchTimeout;
+function filterClientes(value) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (value) params.set('search', value);
+        else params.delete('search');
+        params.delete('detalheId');
+        params.delete('editId');
+        window.location.href = '?' + params.toString();
+    }, 400);
+}
+</script>
+}
