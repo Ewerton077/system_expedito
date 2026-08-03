@@ -1,6 +1,9 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SantoExpedito.Data;
+using SantoExpedito.Models;
 using SantoExpedito.Services;
 using SantoExpedito.Services.Interfaces;
 using SantoExpedito.Services.RegrasAgendamento;
@@ -9,8 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? throw new InvalidOperationException("Connection string não configurada");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -19,10 +26,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LogoutPath = "/Login/Logout";
         options.AccessDeniedPath = "/Login";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
     });
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+});
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
+
+builder.Services.AddScoped<ICpfEncryptionService, CpfEncryptionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IPetService, PetService>();
@@ -53,31 +70,56 @@ using (var scope = app.Services.CreateScope())
 
     if (!context.AdminUsers.Any())
     {
-        context.AdminUsers.Add(new SantoExpedito.Models.AdminUser
+        var senhaCasaderacao = Environment.GetEnvironmentVariable("ADMIN_PASSWORD_CASADERACAO")
+            ?? builder.Configuration["AdminPasswords:Casaderacao"]
+            ?? throw new InvalidOperationException("ADMIN_PASSWORD_CASADERACAO não configurada");
+
+        var senhaEvin = Environment.GetEnvironmentVariable("ADMIN_PASSWORD_EVIN")
+            ?? builder.Configuration["AdminPasswords:Evin"]
+            ?? throw new InvalidOperationException("ADMIN_PASSWORD_EVIN não configurada");
+
+        context.AdminUsers.Add(new AdminUser
         {
             Username = "casaderacao",
-            PasswordHash = BCryptHelper.HashPassword("expeditoracao2012")
+            PasswordHash = BCryptHelper.HashPassword(senhaCasaderacao),
+            Role = UserRole.Admin
         });
-        context.AdminUsers.Add(new SantoExpedito.Models.AdminUser
+        context.AdminUsers.Add(new AdminUser
         {
             Username = "evin",
-            PasswordHash = BCryptHelper.HashPassword("1988tupac")
+            PasswordHash = BCryptHelper.HashPassword(senhaEvin),
+            Role = UserRole.SuperAdmin
         });
         context.SaveChanges();
     }
 }
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
+app.UseHttpsRedirection();
+
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+    ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    ctx.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    await next();
+});
+
+app.UseRateLimiter();
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",

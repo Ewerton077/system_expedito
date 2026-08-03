@@ -9,10 +9,12 @@ namespace SantoExpedito.Controllers;
 public class LoginController : Controller
 {
     private readonly IAuthService _authService;
+    private readonly ILoginAttemptService _loginAttemptService;
 
-    public LoginController(IAuthService authService)
+    public LoginController(IAuthService authService, ILoginAttemptService loginAttemptService)
     {
         _authService = authService;
+        _loginAttemptService = loginAttemptService;
     }
 
     public IActionResult Index()
@@ -26,16 +28,26 @@ public class LoginController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(LoginViewModel model)
     {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        if (_loginAttemptService.IsBlocked(ipAddress))
+        {
+            ModelState.AddModelError("", "Muitas tentativas de login. Tente novamente em 5 minutos.");
+            return View(model);
+        }
+
         if (!ModelState.IsValid)
             return View(model);
 
         if (!await _authService.ValidateUserAsync(model.Username, model.Password))
         {
+            _loginAttemptService.RecordFailedAttempt(ipAddress);
             ModelState.AddModelError("", "Usuário ou senha inválidos");
             return View(model);
         }
 
-        var principal = _authService.CreatePrincipal(model.Username);
+        _loginAttemptService.Reset(ipAddress);
+        var principal = await _authService.CreatePrincipalAsync(model.Username);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
         return RedirectToAction("Index", "Dashboard");

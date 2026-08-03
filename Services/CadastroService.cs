@@ -10,11 +10,13 @@ public class CadastroService : ICadastroService
 {
     private readonly AppDbContext _context;
     private readonly IAgendamentoService _agendamentoService;
+    private readonly ICpfEncryptionService _cpfEncryption;
 
-    public CadastroService(AppDbContext context, IAgendamentoService agendamentoService)
+    public CadastroService(AppDbContext context, IAgendamentoService agendamentoService, ICpfEncryptionService cpfEncryption)
     {
         _context = context;
         _agendamentoService = agendamentoService;
+        _cpfEncryption = cpfEncryption;
     }
 
     public async Task<string> CreateClienteAsync(CadastroViewModel model)
@@ -55,7 +57,7 @@ public class CadastroService : ICadastroService
                 PetVacinacao = pet.Vacinacao,
                 Valor = model.Valor,
                 DatasBanho = datasBanhoStr,
-                Cpf = model.Responsavel.Cpf,
+                Cpf = _cpfEncryption.Encrypt(model.Responsavel.Cpf ?? ""),
                 Email = model.Responsavel.Email,
                 Cep = model.Responsavel.Cep,
                 PetIdade = pet.Idade,

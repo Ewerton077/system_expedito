@@ -134,6 +134,7 @@ public class ClientesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> GerarMock()
     {
         var msg = await _clienteService.GerarMockDataAsync();
@@ -143,6 +144,7 @@ public class ClientesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> LimparMock()
     {
         var count = await _clienteService.LimparMockDataAsync();

@@ -9,11 +9,13 @@ public class ClienteService : IClienteService
 {
     private readonly AppDbContext _context;
     private readonly IAgendamentoService _agendamentoService;
+    private readonly ICpfEncryptionService _cpfEncryption;
 
-    public ClienteService(AppDbContext context, IAgendamentoService agendamentoService)
+    public ClienteService(AppDbContext context, IAgendamentoService agendamentoService, ICpfEncryptionService cpfEncryption)
     {
         _context = context;
         _agendamentoService = agendamentoService;
+        _cpfEncryption = cpfEncryption;
     }
 
     public async Task<List<Cliente>> GetAllAsync(string? searchTerm = null)
@@ -32,16 +34,27 @@ public class ClienteService : IClienteService
             );
         }
 
-        return await query.OrderBy(c => c.Nome).ToListAsync();
+        var clientes = await query.OrderBy(c => c.Nome).ToListAsync();
+        foreach (var c in clientes)
+        {
+            c.Cpf = _cpfEncryption.Decrypt(c.Cpf ?? "");
+        }
+        return clientes;
     }
 
     public async Task<Cliente?> GetByIdAsync(int id)
     {
-        return await _context.Clientes.FindAsync(id);
+        var cliente = await _context.Clientes.FindAsync(id);
+        if (cliente != null)
+        {
+            cliente.Cpf = _cpfEncryption.Decrypt(cliente.Cpf ?? "");
+        }
+        return cliente;
     }
 
     public async Task<Cliente> CreateAsync(Cliente cliente)
     {
+        cliente.Cpf = _cpfEncryption.Encrypt(cliente.Cpf ?? "");
         _context.Clientes.Add(cliente);
         await _context.SaveChangesAsync();
         return cliente;
@@ -68,7 +81,7 @@ public class ClienteService : IClienteService
         existing.PetVermifugacao = cliente.PetVermifugacao;
         existing.PetAntipulgas = cliente.PetAntipulgas;
         existing.PetVacinacao = cliente.PetVacinacao;
-        existing.Cpf = cliente.Cpf;
+        existing.Cpf = _cpfEncryption.Encrypt(cliente.Cpf ?? "");
         existing.Email = cliente.Email;
         existing.Cep = cliente.Cep;
         existing.PetIdade = cliente.PetIdade;
@@ -104,6 +117,21 @@ public class ClienteService : IClienteService
             _context.Clientes.Remove(cliente);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<bool> ExistsAsync(int id)
+    {
+        return await _context.Clientes.AnyAsync(c => c.Id == id);
+    }
+
+    public async Task<Cliente?> GetByNomeAsync(string nome)
+    {
+        var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Nome == nome);
+        if (cliente != null)
+        {
+            cliente.Cpf = _cpfEncryption.Decrypt(cliente.Cpf ?? "");
+        }
+        return cliente;
     }
 
     public async Task UpdatePetAsync(Cliente cliente)
@@ -204,7 +232,7 @@ public class ClienteService : IClienteService
                     PetAntipulgas = petAntipulgas,
                     PetVacinacao = petVacinacao,
                     Valor = valor,
-                    Cpf = cpf,
+                    Cpf = _cpfEncryption.Encrypt(cpf),
                     Email = email,
                     PetIdade = petIdade,
                     Cep = cep
