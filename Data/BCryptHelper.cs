@@ -4,7 +4,7 @@ using System.Text;
 namespace SantoExpedito.Data;
 
 public static class BCryptHelper
-{
+{ 
     public static string HashPassword(string password)
     {
         return Convert.ToBase64String(

@@ -23,6 +23,37 @@ public class DashboardService : IDashboardService
 
         var hoje = DateTime.Now;
         var hojeStr = $"{hoje.Day:D2}/{hoje.Month:D2}/{hoje.Year}";
+        var hojeInicio = new DateTime(hoje.Year, hoje.Month, hoje.Day);
+
+        int pagos = 0, pendentes = 0, atrasados = 0, vencemHoje = 0, vencemProx7 = 0;
+        foreach (var v in vencimentos)
+        {
+            if (string.Equals(v.Status, "Pago", StringComparison.OrdinalIgnoreCase))
+            {
+                pagos++;
+                continue;
+            }
+
+            var partes = (v.VencimentoData ?? "").Split('/');
+            if (partes.Length == 3 && DateTime.TryParse($"{partes[2]}-{partes[1]}-{partes[0]}", out var dt))
+            {
+                var diff = (dt - hojeInicio).Days;
+                if (diff < 0)
+                    atrasados++;
+                else if (diff == 0)
+                    vencemHoje++;
+                else if (diff <= 7)
+                    vencemProx7++;
+
+                if (string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase))
+                    pendentes++;
+            }
+            else
+            {
+                if (string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase))
+                    pendentes++;
+            }
+        }
 
         double dbSize = 0;
         try
@@ -43,9 +74,11 @@ public class DashboardService : IDashboardService
             TotalPets = await _context.Pets.CountAsync(),
             PlanosMensais = clientes.Count(c => c.Plano == "Mensal"),
             PlanosQuinzenais = clientes.Count(c => c.Plano == "Quinzenal"),
-            PagamentosPagos = vencimentos.Count(v => string.Equals(v.Status, "Pago", StringComparison.OrdinalIgnoreCase)),
-            PagamentosPendentes = vencimentos.Count(v => string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase)),
-            PagamentosAtrasados = vencimentos.Count(v => string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase) && string.Compare(v.VencimentoData, hojeStr) < 0),
+            PagamentosPagos = pagos,
+            PagamentosPendentes = pendentes,
+            PagamentosAtrasados = atrasados,
+            PagamentosVencemHoje = vencemHoje,
+            PagamentosVencemProx7Dias = vencemProx7,
             AgendamentosHoje = await _context.Agendamentos
                 .Where(a => a.Data == hojeStr && a.Status != "Concluído" && a.Status != "Removido")
                 .ToListAsync(),

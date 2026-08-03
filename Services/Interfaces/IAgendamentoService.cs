@@ -9,4 +9,6 @@ public interface IAgendamentoService
     Task RemarcarAsync(int id, string novaData, string novoHorario);
     Task GerarAgendamentosRecorrentesAsync(string tutor, string petNome, string plano, string datasBanho, int meses = 12);
     Task CriarBanhoUnicoAsync(string tutor, string endereco, string telefone, string petNome, string data, string horario);
+    Task<int> RemoverOrfaosAsync();
+    List<(int DiaFixo, DateTime DataReal, bool Ajustado)> ObterDatasProximosBanhos(string plano, string datasBanho);
 }

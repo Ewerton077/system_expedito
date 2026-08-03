@@ -11,6 +11,8 @@ public class DashboardDto
     public int PagamentosPagos { get; set; }
     public int PagamentosPendentes { get; set; }
     public int PagamentosAtrasados { get; set; }
+    public int PagamentosVencemHoje { get; set; }
+    public int PagamentosVencemProx7Dias { get; set; }
     public List<Agendamento> AgendamentosHoje { get; set; } = new();
     public List<Vencimento> Vencimentos { get; set; } = new();
     public double DbSizeMb { get; set; }

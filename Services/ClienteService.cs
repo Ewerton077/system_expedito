@@ -88,8 +88,19 @@ public class ClienteService : IClienteService
         var cliente = await _context.Clientes.FindAsync(id);
         if (cliente != null)
         {
+            var agendamentos = await _context.Agendamentos
+                .Where(a => a.Tutor == cliente.Nome && a.Pet == cliente.PetNome)
+                .ToListAsync();
+            _context.Agendamentos.RemoveRange(agendamentos);
+
+            var vencimentos = await _context.Vencimentos
+                .Where(v => v.Cliente == cliente.Nome)
+                .ToListAsync();
+            _context.Vencimentos.RemoveRange(vencimentos);
+
             var pets = await _context.Pets.Where(p => p.Nome == cliente.PetNome && p.Tutor == cliente.Nome).ToListAsync();
             _context.Pets.RemoveRange(pets);
+
             _context.Clientes.Remove(cliente);
             await _context.SaveChangesAsync();
         }
@@ -226,6 +237,7 @@ public class ClienteService : IClienteService
                 {
                     Cliente = nome,
                     Plano = plano,
+                    DataInicio = CalcularInicioMock(vencData, plano),
                     VencimentoData = vencData,
                     Valor = valor,
                     Status = statusVenc
@@ -239,6 +251,7 @@ public class ClienteService : IClienteService
                     {
                         Cliente = nome,
                         Plano = plano,
+                        DataInicio = CalcularInicioMock(vencData2, plano),
                         VencimentoData = vencData2,
                         Valor = valor,
                         Status = "Pago"
@@ -306,5 +319,18 @@ public class ClienteService : IClienteService
         await _context.SaveChangesAsync();
 
         return mockClientes.Count;
+    }
+
+    private static string CalcularInicioMock(string vencData, string? plano)
+    {
+        var partes = vencData.Split('/');
+        if (partes.Length == 3 && DateTime.TryParse($"{partes[2]}-{partes[1]}-{partes[0]}", out var venc))
+        {
+            var inicio = string.Equals(plano, "Quinzenal", StringComparison.OrdinalIgnoreCase)
+                ? venc.AddDays(-15)
+                : venc.AddDays(-30);
+            return $"{inicio.Day:D2}/{inicio.Month:D2}/{inicio.Year}";
+        }
+        return vencData;
     }
 }

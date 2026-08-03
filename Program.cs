@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SantoExpedito.Data;
 using SantoExpedito.Services;
 using SantoExpedito.Services.Interfaces;
+using SantoExpedito.Services.RegrasAgendamento;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,8 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
 builder.Services.AddScoped<IVencimentoService, VencimentoService>();
 builder.Services.AddScoped<ICadastroService, CadastroService>();
+builder.Services.AddScoped<IRegraAgendamento, RegraDomingo>();
+builder.Services.AddScoped<ServicoRegrasAgendamento>();
 
 var app = builder.Build();
 
@@ -52,8 +55,8 @@ using (var scope = app.Services.CreateScope())
     {
         context.AdminUsers.Add(new SantoExpedito.Models.AdminUser
         {
-            Username = "root",
-            PasswordHash = BCryptHelper.HashPassword("krakermanfodase")
+            Username = "casaderacao",
+            PasswordHash = BCryptHelper.HashPassword("expeditoracao2012")
         });
         context.AdminUsers.Add(new SantoExpedito.Models.AdminUser
         {

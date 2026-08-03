@@ -25,6 +25,8 @@ public class DashboardController : Controller
         ViewBag.PagamentosPagos = data.PagamentosPagos;
         ViewBag.PagamentosPendentes = data.PagamentosPendentes;
         ViewBag.PagamentosAtrasados = data.PagamentosAtrasados;
+        ViewBag.PagamentosVencemHoje = data.PagamentosVencemHoje;
+        ViewBag.PagamentosVencemProx7Dias = data.PagamentosVencemProx7Dias;
         ViewBag.AgendamentosHoje = data.AgendamentosHoje;
         ViewBag.Vencimentos = data.Vencimentos;
         ViewBag.DbSizeMb = data.DbSizeMb;

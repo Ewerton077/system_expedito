@@ -1,7 +1,7 @@
 @{
     ViewBag.Title = "Dashboard";
     var hojeAgendamentos = ViewBag.AgendamentosHoje as List<SantoExpedito.Models.Agendamento> ?? new();
-    var vencimentos = ViewBag.Vencimentos as List<SantoExpedito.Models.Vencimento> ?? new();
+
     var hoje = DateTime.Now;
     var hojeStr = $"{hoje.Day:D2}/{hoje.Month:D2}/{hoje.Year}";
 }
@@ -27,6 +27,10 @@
         <div class="stat-card danger">
             <div class="stat-icon"><i class="ti ti-alert-circle"></i></div>
             <div class="stat-info"><span>Pagamentos Atrasados</span><h3>@ViewBag.PagamentosAtrasados</h3></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-calendar-event"></i></div>
+            <div class="stat-info"><span>Vencem Hoje</span><h3>@ViewBag.PagamentosVencemHoje</h3></div>
         </div>
     </div>
 
@@ -95,18 +99,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="card">
-            <div class="card-header"><h2>Próximos Vencimentos</h2></div>
-            <table>
-                <thead><tr><th>Cliente</th><th>Plano</th><th>Vencimento</th></tr></thead>
-                <tbody>
-                    @foreach (var v in vencimentos)
-                    {
-                        <tr><td>@v.Cliente</td><td>@v.Plano</td><td>@v.VencimentoData</td></tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+
     </div>
 </div>
 
@@ -136,8 +129,8 @@ new Chart(document.getElementById('plansChart'), {
 new Chart(document.getElementById('paymentsChart'), {
     type: 'bar',
     data: {
-        labels: ['Pagos', 'Pendentes', 'Atrasados'],
-        datasets: [{ data: [@ViewBag.PagamentosPagos, @ViewBag.PagamentosPendentes, 0], backgroundColor: ['#E8321A', '#F5A89A', '#B82510'], borderRadius: 6, borderSkipped: false, maxBarThickness: 50 }]
+        labels: ['Pagos', 'Pendentes', 'Atrasados', 'Vencem Hoje'],
+        datasets: [{ data: [@ViewBag.PagamentosPagos, @ViewBag.PagamentosPendentes, @ViewBag.PagamentosAtrasados, @ViewBag.PagamentosVencemHoje], backgroundColor: ['#E8321A', '#F5A89A', '#B82510', '#C28A00'], borderRadius: 6, borderSkipped: false, maxBarThickness: 50 }]
     },
     options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#A09890' }, grid: { color: 'rgba(0,0,0,.06)' } }, x: { ticks: { color: '#4A4440', font: { size: 12 } }, grid: { display: false } } } }
 });

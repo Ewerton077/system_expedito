@@ -78,6 +78,15 @@
                         </a>
                     </div>
                     }
+                    <div class="detail-actions">
+                        <form method="post" action="@Url.Action("Excluir", "Pets")" onsubmit="return confirm('Excluir este pet e todos os seus agendamentos?')">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@p.Id">
+                            <button type="submit" class="btn-secondary" style="color:var(--red);border-color:var(--red)">
+                                <i class="ti ti-trash"></i> Excluir Pet
+                            </button>
+                        </form>
+                    </div>
                 </div>
             }
             else

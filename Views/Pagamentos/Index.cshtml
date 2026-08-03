@@ -1,70 +1,114 @@
 @{
     ViewBag.Title = "Pagamentos";
-    var pagos = ViewBag.Pagos as List<SantoExpedito.DTOs.VencimentoItemDto> ?? new();
-    var pendentes = ViewBag.Pendentes as List<SantoExpedito.DTOs.VencimentoItemDto> ?? new();
+    var vencimentos = ViewBag.Vencimentos as List<SantoExpedito.DTOs.VencimentoItemDto> ?? new();
     var fin = ViewBag.Financeiro as SantoExpedito.DTOs.FinanceiroDto ?? new();
-    var totalPago = pagos.Sum(v => v.Valor);
-    var totalPendente = pendentes.Sum(v => v.Valor);
+    var filtroAtivo = ViewBag.FiltroAtivo as string ?? "todos";
+    var contadorPagos = (int)(ViewBag.ContadorPagos ?? 0);
+    var contadorPendentes = (int)(ViewBag.ContadorPendentes ?? 0);
+    var contadorAtrasados = (int)(ViewBag.ContadorAtrasados ?? 0);
+    var contadorHoje = (int)(ViewBag.ContadorHoje ?? 0);
+    var contadorProx7 = (int)(ViewBag.ContadorProx7 ?? 0);
+    var contadorTodos = (int)(ViewBag.ContadorTodos ?? 0);
+    var totalPago = vencimentos.Where(v => string.Equals(v.Status, "Pago", StringComparison.OrdinalIgnoreCase)).Sum(v => v.Valor);
+    var totalPendente = vencimentos.Where(v => !string.Equals(v.Status, "Pago", StringComparison.OrdinalIgnoreCase)).Sum(v => v.Valor);
 }
 
 <div class="page active" id="pagamentos">
-    <div class="page-header"><h2>Pagamentos</h2></div>
+    <form id="tokenForm" style="display:none">@Html.AntiForgeryToken()</form>
+    <div class="page-header">
+        <h2>Pagamentos</h2>
+        <button class="btn-primary" id="btnLimparOrfaosPag" style="background:var(--border);color:var(--text)"><i class="ti ti-broom"></i> Limpar Órfãos</button>
+    </div>
     <div class="pag-menu">
-        <button class="pag-menu-btn active" onclick="document.querySelectorAll('.pag-tab').forEach(t=>t.classList.remove('active'));document.getElementById('pagamentos-tab').classList.add('active');document.querySelectorAll('.pag-menu-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Pagamentos</button>
-        <button class="pag-menu-btn" onclick="document.querySelectorAll('.pag-tab').forEach(t=>t.classList.remove('active'));document.getElementById('financeiro-tab').classList.add('active');document.querySelectorAll('.pag-menu-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Financeiro</button>
+        <a class="pag-menu-btn @(filtroAtivo == "todos" ? "active" : "")" href="?filtro=todos">Todos (@contadorTodos)</a>
+        <a class="pag-menu-btn @(filtroAtivo == "pagos" ? "active" : "")" href="?filtro=pagos">Pagos (@contadorPagos)</a>
+        <a class="pag-menu-btn @(filtroAtivo == "pendentes" ? "active" : "")" href="?filtro=pendentes">Pendentes (@contadorPendentes)</a>
+        <a class="pag-menu-btn @(filtroAtivo == "atrasados" ? "active" : "")" href="?filtro=atrasados">Atrasados (@contadorAtrasados)</a>
+        <a class="pag-menu-btn @(filtroAtivo == "hoje" ? "active" : "")" href="?filtro=hoje">Vencem Hoje (@contadorHoje)</a>
+        <a class="pag-menu-btn @(filtroAtivo == "proximos7" ? "active" : "")" href="?filtro=proximos7">Próx. 7 Dias (@contadorProx7)</a>
     </div>
 
-    <div class="pag-tab active" id="pagamentos-tab">
-        <div class="pag-summary">
-            <div class="pag-summary-card"><div class="pag-summary-icon verde"><i class="ti ti-circle-check"></i></div><div class="pag-summary-info"><span>Efetuados</span><strong>@pagos.Count</strong></div></div>
-            <div class="pag-summary-card"><div class="pag-summary-icon vermelho"><i class="ti ti-clock"></i></div><div class="pag-summary-info"><span>Pendentes</span><strong>@pendentes.Count</strong></div></div>
-            <div class="pag-summary-card"><div class="pag-summary-icon verde"><i class="ti ti-coin"></i></div><div class="pag-summary-info"><span>Total Recebido</span><strong>R$ @totalPago.ToString("F2")</strong></div></div>
-            <div class="pag-summary-card"><div class="pag-summary-icon amarelo"><i class="ti ti-alert-circle"></i></div><div class="pag-summary-info"><span>Total Pendente</span><strong>R$ @totalPendente.ToString("F2")</strong></div></div>
-        </div>
+    <div class="pag-summary">
+        <div class="pag-summary-card"><div class="pag-summary-icon verde"><i class="ti ti-circle-check"></i></div><div class="pag-summary-info"><span>Pagos</span><strong>@contadorPagos</strong></div></div>
+        <div class="pag-summary-card"><div class="pag-summary-icon vermelho"><i class="ti ti-clock"></i></div><div class="pag-summary-info"><span>Pendentes</span><strong>@contadorPendentes</strong></div></div>
+        <div class="pag-summary-card"><div class="pag-summary-icon vermelho"><i class="ti ti-alert-circle"></i></div><div class="pag-summary-info"><span>Atrasados</span><strong>@contadorAtrasados</strong></div></div>
+        <div class="pag-summary-card"><div class="pag-summary-icon amarelo"><i class="ti ti-calendar-event"></i></div><div class="pag-summary-info"><span>Vencem Hoje</span><strong>@contadorHoje</strong></div></div>
+        <div class="pag-summary-card"><div class="pag-summary-icon azul"><i class="ti ti-calendar-time"></i></div><div class="pag-summary-info"><span>Próx. 7 Dias</span><strong>@contadorProx7</strong></div></div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2><i class="ti ti-list" style="color:var(--red)"></i> Gerenciamento de Pagamentos</h2></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Plano</th>
+                    <th>Data Início</th>
+                    <th>Vencimento</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (vencimentos.Count == 0)
+                {
+                    <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum pagamento encontrado</td></tr>
+                }
+                @foreach (var v in vencimentos)
+                {
+                    var hoje = DateTime.Now;
+                    var partes = (v.VencimentoData ?? "").Split('/');
+                    var dataVenStr = partes.Length == 3 ? $"{partes[2]}-{partes[1]}-{partes[0]}" : "";
+                    DateTime.TryParse(dataVenStr, out var dataVen);
+                    var diff = (dataVen - new DateTime(hoje.Year, hoje.Month, hoje.Day)).Days;
+                    var statusLower = (v.Status ?? "").ToLower();
+                    var statusClass = statusLower == "pago" ? "concluido" : statusLower == "atrasado" ? "removido" : "espera";
+                    <tr>
+                        <td><strong>@v.Cliente</strong></td>
+                        <td>@v.Plano</td>
+                        <td>@(v.DataInicio ?? "-")</td>
+                        <td>
+                            @v.VencimentoData
+                            @if (statusLower != "pago")
+                            {
+                                if (diff < 0)
+                                {
+                                    <span style="color:#B82510;font-size:11px;margin-left:4px">(@Math.Abs(diff) dia(s) atrasado(s))</span>
+                                }
+                                else if (diff == 0)
+                                {
+                                    <span style="color:#C28A00;font-size:11px;margin-left:4px">(Vence hoje)</span>
+                                }
+                                else if (diff <= 7)
+                                {
+                                    <span style="color:#C28A00;font-size:11px;margin-left:4px">(@diff dia(s) restante(s))</span>
+                                }
+                            }
+                        </td>
+                        <td>R$ @v.Valor.ToString("F2")</td>
+                        <td><span class="agenda-list-status @statusClass">@v.Status</span></td>
+                        <td>
+                            <div style="display:flex;gap:4px;flex-wrap:wrap">
+                                @if (!string.Equals(v.Status, "Pago", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <button class="agenda-status-btn" style="padding:4px 8px;font-size:11px" onclick="alterarStatus(@v.Id, 'Pago')"><i class="ti ti-circle-check"></i> Pago</button>
+                                }
+                                @if (!string.Equals(v.Status, "Pendente", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <button class="agenda-status-btn" style="padding:4px 8px;font-size:11px" onclick="alterarStatus(@v.Id, 'Pendente')"><i class="ti ti-clock"></i> Pendente</button>
+                                }
+                                <button class="agenda-status-btn remarcar-btn" style="padding:4px 8px;font-size:11px" onclick="renovarPlano(@v.Id)"><i class="ti ti-refresh"></i> Renovar</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pag-tab" id="financeiro-tab" style="margin-top:20px">
         <div class="pag-grid">
-            <div class="card">
-                <div class="card-header"><h2><i class="ti ti-circle-check" style="color:var(--red)"></i> Efetuados</h2></div>
-                <div class="pag-list">
-                    @foreach (var v in pagos)
-                    {
-                        <div class="pag-item">
-                            <div class="pag-item-icon pago"><i class="ti ti-circle-check"></i></div>
-                            <div class="pag-item-info"><strong>@v.Cliente</strong><span>@v.Plano • Venceu @v.VencimentoData</span></div>
-                            <span class="pag-item-value">R$ @v.Valor.ToString("F2")</span>
-                        </div>
-                    }
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header"><h2><i class="ti ti-clock" style="color:#C28A00"></i> Pendentes</h2></div>
-                <div class="pag-list">
-                    @foreach (var v in pendentes)
-                    {
-                        var hoje = DateTime.Now;
-                        var partes = (v.VencimentoData ?? "").Split('/');
-                        var dataVenStr = partes.Length == 3 ? $"{partes[2]}-{partes[1]}-{partes[0]}" : "";
-                        DateTime.TryParse(dataVenStr, out var dataVen);
-                        var diffT = (dataVen - hoje).Days;
-                        var diasText = diffT > 0 ? $"{diffT} dia{(diffT > 1 ? "s" : "")} restante{(diffT > 1 ? "s" : "")}" : diffT == 0 ? "Vence hoje" : "Vencido";
-                        var diffClass = diffT <= 0 ? "vencido" : diffT <= 3 ? "proximo" : "";
-                        <div class="pag-item @diffClass">
-                            <div class="pag-item-icon pendente"><i class="ti ti-clock"></i></div>
-                            <div class="pag-item-info"><strong>@v.Cliente</strong><span>@v.Plano • Vence @v.VencimentoData (@diasText)</span></div>
-                            <span class="pag-item-value">R$ @v.Valor.ToString("F2")</span>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="pag-tab" id="financeiro-tab">
-        <div class="pag-fin-summary">
-            <div class="pag-summary-card"><div class="pag-summary-icon vermelho"><i class="ti ti-coin"></i></div><div class="pag-summary-info"><span>Receita Total</span><strong>R$ @fin.ReceitaTotal.ToString("F2")</strong></div></div>
-            <div class="pag-summary-card"><div class="pag-summary-icon azul"><i class="ti ti-calendar"></i></div><div class="pag-summary-info"><span>Receita Mensal</span><strong>R$ @fin.ReceitaMensal.ToString("F2")</strong></div></div>
-            <div class="pag-summary-card"><div class="pag-summary-icon amarelo"><i class="ti ti-calendar-time"></i></div><div class="pag-summary-info"><span>Receita Quinzenal</span><strong>R$ @fin.ReceitaQuinzenal.ToString("F2")</strong></div></div>
-        </div>
-        <div class="pag-fin-grid">
             <div class="card">
                 <div class="card-header"><h2><i class="ti ti-pie-chart" style="color:var(--red)"></i> Distribuição dos Planos</h2></div>
                 <div class="rel-chart-wrap"><canvas id="pagPlanosChart"></canvas></div>
@@ -79,6 +123,41 @@
 
 @section Scripts {
 <script>
+function alterarStatus(id, status) {
+    fetch('@Url.Action("AlterarStatus", "Pagamentos")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `__RequestVerificationToken=${encodeURIComponent(document.querySelector('#tokenForm input[name="__RequestVerificationToken"]').value)}&id=${id}&status=${encodeURIComponent(status)}`
+    }).then(r => r.json()).then(data => {
+        alert(data.message);
+        location.reload();
+    }).catch(() => alert('Erro ao alterar status.'));
+}
+
+function renovarPlano(id) {
+    if (!confirm('Renovar este plano? A data será atualizada para hoje, o status será alterado para Pago e os banhos serão reiniciados.')) return;
+    fetch('@Url.Action("RenovarPlano", "Pagamentos")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `__RequestVerificationToken=${encodeURIComponent(document.querySelector('#tokenForm input[name="__RequestVerificationToken"]').value)}&id=${id}`
+    }).then(r => r.json()).then(data => {
+        alert(data.message);
+        location.reload();
+    }).catch(() => alert('Erro ao renovar plano.'));
+}
+
+document.getElementById('btnLimparOrfaosPag').addEventListener('click', () => {
+    if (!confirm('Remover todos os pagamentos de clientes que não existem mais?')) return;
+    fetch('@Url.Action("LimparOrfaos","Pagamentos")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `__RequestVerificationToken=${encodeURIComponent(document.querySelector('#tokenForm input[name="__RequestVerificationToken"]').value)}`
+    }).then(r => r.json()).then(data => {
+        alert(data.message);
+        location.reload();
+    }).catch(() => alert('Erro ao limpar pagamentos órfãos.'));
+});
+
 new Chart(document.getElementById('pagPlanosChart'), {
     type: 'doughnut',
     data: { labels: ['Mensal', 'Quinzenal'], datasets: [{ data: [@fin.ClientesMensal, @fin.ClientesQuinzenal], backgroundColor: ['#E8321A', '#F5A89A'], borderWidth: 0 }] },

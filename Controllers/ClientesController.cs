@@ -11,12 +11,14 @@ public class ClientesController : Controller
     private readonly IClienteService _clienteService;
     private readonly IPetService _petService;
     private readonly IAgendamentoService _agendamentoService;
+    private readonly IVencimentoService _vencimentoService;
 
-    public ClientesController(IClienteService clienteService, IPetService petService, IAgendamentoService agendamentoService)
+    public ClientesController(IClienteService clienteService, IPetService petService, IAgendamentoService agendamentoService, IVencimentoService vencimentoService)
     {
         _clienteService = clienteService;
         _petService = petService;
         _agendamentoService = agendamentoService;
+        _vencimentoService = vencimentoService;
     }
 
     public async Task<IActionResult> Index(string? plano, int? detalheId, int? editId, string? search)
@@ -48,13 +50,31 @@ public class ClientesController : Controller
         {
             var clienteDetalhe = clientes.FirstOrDefault(c => c.Id == detalheId.Value);
             ViewBag.ClienteDetalhe = clienteDetalhe;
-            if (clienteDetalhe?.DataCadastro.HasValue == true)
+            if (clienteDetalhe != null)
             {
-                var dataVenc = clienteDetalhe.DataCadastro.Value.AddDays(30);
-                var diasRestantes = (dataVenc - DateTime.Now).Days;
-                ViewBag.DataVencimento = dataVenc;
-                ViewBag.DiasRestantes = diasRestantes;
-                ViewBag.PlanoVencido = diasRestantes < 0;
+                var vencimentoAtual = await _vencimentoService.GetVencimentoClienteAsync(clienteDetalhe.Nome);
+                if (vencimentoAtual != null)
+                {
+                    ViewBag.DataInicioVenc = vencimentoAtual.DataInicio;
+                    var partes = (vencimentoAtual.VencimentoData ?? "").Split('/');
+                    if (partes.Length == 3 && DateTime.TryParse($"{partes[2]}-{partes[1]}-{partes[0]}", out var dataVenc))
+                    {
+                        var diasRestantes = (dataVenc.Date - DateTime.Now.Date).Days;
+                        ViewBag.DataVencimento = dataVenc;
+                        ViewBag.DiasRestantes = diasRestantes;
+                        ViewBag.PlanoVencido = diasRestantes < 0;
+                    }
+                    else
+                    {
+                        ViewBag.PlanoVencido = false;
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(clienteDetalhe.DatasBanho))
+                {
+                    var datasProximos = _agendamentoService.ObterDatasProximosBanhos(
+                        clienteDetalhe.Plano ?? "Mensal", clienteDetalhe.DatasBanho);
+                    ViewBag.ProximosBanhos = datasProximos;
+                }
             }
         }
 

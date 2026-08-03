@@ -50,4 +50,12 @@ public class PetsController : Controller
 
         return View(pets);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Excluir(int id)
+    {
+        await _petService.DeleteAsync(id);
+        return RedirectToAction("Index");
+    }
 }

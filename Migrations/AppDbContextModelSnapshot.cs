@@ -236,6 +236,10 @@ namespace SantoExpedito.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DataInicio")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Plano")
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");

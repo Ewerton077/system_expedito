@@ -15,6 +15,9 @@ public class Vencimento
     public string? Plano { get; set; }
 
     [MaxLength(20)]
+    public string? DataInicio { get; set; }
+
+    [MaxLength(20)]
     public string? VencimentoData { get; set; }
 
     [Column(TypeName = "decimal(10,2)")]

@@ -31,7 +31,8 @@ public class CadastroService : ICadastroService
         var datasBanhoStr = string.Join(",", diasBanho);
 
         var hoje = DateTime.Now;
-        var datasVencStr = $"{hoje.AddDays(30).Day:D2}/{hoje.AddDays(30).Month:D2}/{hoje.AddDays(30).Year}";
+        var datasVencStr = VencimentoService.CalcularVencimento(hoje, model.Plano);
+        var hojeStr = $"{hoje.Day:D2}/{hoje.Month:D2}/{hoje.Year}";
 
         foreach (var pet in model.Pets)
         {
@@ -85,6 +86,7 @@ public class CadastroService : ICadastroService
         {
             Cliente = model.Responsavel.Nome,
             Plano = model.Plano,
+            DataInicio = hojeStr,
             VencimentoData = datasVencStr,
             Valor = model.Valor,
             Status = "Pendente"

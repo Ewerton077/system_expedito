@@ -3152,11 +3152,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\alunobcc11\\Desktop\\SANTO_EX\\SE_System\\SantoExpedito.csproj",
+      "projectUniqueName": "C:\\Users\\alunobcc11\\Downloads\\SANTO_EX-20260803T173535Z-1-001\\SANTO_EX\\SE_System\\SantoExpedito.csproj",
       "projectName": "SantoExpedito",
-      "projectPath": "C:\\Users\\alunobcc11\\Desktop\\SANTO_EX\\SE_System\\SantoExpedito.csproj",
+      "projectPath": "C:\\Users\\alunobcc11\\Downloads\\SANTO_EX-20260803T173535Z-1-001\\SANTO_EX\\SE_System\\SantoExpedito.csproj",
       "packagesPath": "C:\\Users\\alunobcc11\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\alunobcc11\\Desktop\\SANTO_EX\\SE_System\\obj\\",
+      "outputPath": "C:\\Users\\alunobcc11\\Downloads\\SANTO_EX-20260803T173535Z-1-001\\SANTO_EX\\SE_System\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

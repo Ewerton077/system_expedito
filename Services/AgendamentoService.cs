@@ -2,16 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using SantoExpedito.Data;
 using SantoExpedito.Models;
 using SantoExpedito.Services.Interfaces;
+using SantoExpedito.Services.RegrasAgendamento;
 
 namespace SantoExpedito.Services;
 
 public class AgendamentoService : IAgendamentoService
 {
     private readonly AppDbContext _context;
+    private readonly ServicoRegrasAgendamento _regras;
 
-    public AgendamentoService(AppDbContext context)
+    public AgendamentoService(AppDbContext context, ServicoRegrasAgendamento regras)
     {
         _context = context;
+        _regras = regras;
     }
 
     public async Task<List<Agendamento>> GetAllAsync()
@@ -66,7 +69,9 @@ public class AgendamentoService : IAgendamentoService
             {
                 if (dia > diasNoMes) continue;
 
-                var dataStr = $"{dia:D2}/{mesAlvo.Month:D2}/{mesAlvo.Year}";
+                var dataOriginal = new DateTime(mesAlvo.Year, mesAlvo.Month, dia);
+                var dataAjustada = _regras.Aplicar(dataOriginal);
+                var dataStr = $"{dataAjustada.Day:D2}/{dataAjustada.Month:D2}/{dataAjustada.Year}";
 
                 var existe = await _context.Agendamentos.AnyAsync(a =>
                     a.Data == dataStr && a.Pet == petNome && a.Tutor == tutor);
@@ -93,6 +98,42 @@ public class AgendamentoService : IAgendamentoService
         }
     }
 
+    public List<(int DiaFixo, DateTime DataReal, bool Ajustado)> ObterDatasProximosBanhos(string plano, string datasBanho)
+    {
+        var resultado = new List<(int DiaFixo, DateTime DataReal, bool Ajustado)>();
+        if (string.IsNullOrWhiteSpace(datasBanho)) return resultado;
+
+        var dias = datasBanho
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(d => int.TryParse(d.Trim(), out var dia) ? dia : (int?)null)
+            .Where(d => d.HasValue && d.Value >= 1 && d.Value <= 31)
+            .Select(d => d!.Value)
+            .ToList();
+
+        if (dias.Count == 0) return resultado;
+
+        var hoje = DateTime.Now;
+
+        for (int m = 0; m < 2; m++)
+        {
+            var mesAlvo = hoje.AddMonths(m);
+            var diasNoMes = DateTime.DaysInMonth(mesAlvo.Year, mesAlvo.Month);
+
+            foreach (var dia in dias)
+            {
+                if (dia > diasNoMes) continue;
+
+                var dataOriginal = new DateTime(mesAlvo.Year, mesAlvo.Month, dia);
+                var dataAjustada = _regras.Aplicar(dataOriginal);
+                var ajustada = dataAjustada != dataOriginal;
+
+                resultado.Add((dia, dataAjustada, ajustada));
+            }
+        }
+
+        return resultado;
+    }
+
     public async Task CriarBanhoUnicoAsync(string tutor, string endereco, string telefone, string petNome, string data, string horario)
     {
         var agendamento = new Agendamento
@@ -108,5 +149,24 @@ public class AgendamentoService : IAgendamentoService
         };
         _context.Agendamentos.Add(agendamento);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> RemoverOrfaosAsync()
+    {
+        var agendamentos = await _context.Agendamentos.ToListAsync();
+        var petNomes = await _context.Pets.Select(p => new { p.Nome, p.Tutor }).ToListAsync();
+        var tutorNomes = await _context.Clientes.Select(c => new { c.Nome, c.PetNome }).ToListAsync();
+
+        var paraRemover = agendamentos.Where(a =>
+            !petNomes.Any(p => p.Nome == a.Pet && p.Tutor == a.Tutor) &&
+            !tutorNomes.Any(c => c.Nome == a.Tutor && c.PetNome == a.Pet)
+        ).ToList();
+
+        if (paraRemover.Count > 0)
+        {
+            _context.Agendamentos.RemoveRange(paraRemover);
+            await _context.SaveChangesAsync();
+        }
+        return paraRemover.Count;
     }
 }

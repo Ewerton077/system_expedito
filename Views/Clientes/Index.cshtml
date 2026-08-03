@@ -147,14 +147,16 @@
                 var banhosCalc = ViewBag.BanhosRestantesDict != null && ((Dictionary<int, int>)ViewBag.BanhosRestantesDict).ContainsKey(c.Id) ? ((Dictionary<int, int>)ViewBag.BanhosRestantesDict)[c.Id] : 0;
                 var banhosStatus = $"Banhos Restantes ({banhosCalc}) - Mês";
                 var datasBanhoHtml = !string.IsNullOrEmpty(c.DatasBanho) ? string.Join(", ", c.DatasBanho.Split(',')) : "Nenhuma data selecionada";
+                var proximosBanhos = ViewBag.ProximosBanhos as List<(int DiaFixo, DateTime DataReal, bool Ajustado)>;
                 var dataCadastro = c.DataCadastro?.ToString("dd/MM/yyyy") ?? "Não informado";
+                var dataInicioVenc = ViewBag.DataInicioVenc as string;
                 var plandoVencido = ViewBag.PlanoVencido as bool? ?? false;
                 var diasRestantes = ViewBag.DiasRestantes as int? ?? 0;
                 var dataVencimento = ViewBag.DataVencimento as DateTime?;
                 var vencimentoHtml = dataVencimento.HasValue
                     ? (plandoVencido
                         ? $"<span style=\"color:#EF4444;font-weight:700\">Vencido em {dataVencimento.Value.ToString("dd/MM/yyyy")}</span>"
-                        : $"<span style=\"color:#1B7A4A;font-weight:700\">Válido até {dataVencimento.Value.ToString("dd/MM/yyyy")} ({diasRestantes} dias)</span>")
+                        : $"<span style=\"color:#1B7A4A;font-weight:700\">Válido até {dataVencimento.Value.ToString("dd/MM/yyyy")} ({diasRestantes} dia(s))</span>")
                     : "Não disponível";
                 <div class="detail-content">
                     <div class="detail-header">
@@ -169,8 +171,33 @@
                         <div class="detail-field"><label>Raça</label><p>@c.PetRaca</p></div>
                         <div class="detail-field"><label>Banhos Restantes</label><p>@banhosStatus</p></div>
                         <div class="detail-field"><label>Data de Cadastro</label><p>@dataCadastro</p></div>
+                        <div class="detail-field"><label>Início do Plano</label><p>@(dataInicioVenc ?? "Não informado")</p></div>
                         <div class="detail-field"><label>Vencimento do Plano</label><p>@Html.Raw(vencimentoHtml)</p></div>
-                        <div class="detail-field"><label>Dias do Mês (Banho)</label><p>@datasBanhoHtml</p></div>
+                        <div class="detail-field full">
+                            <label>Dias do Mês (Banho)</label>
+                            <p>@datasBanhoHtml</p>
+                            @if (proximosBanhos != null && proximosBanhos.Count > 0)
+                            {
+                                <div style="margin-top:8px;padding:10px;background:rgba(0,0,0,.03);border-radius:8px;font-size:13px">
+                                    <strong style="color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.5px">Próximos Banhos (ajustados)</strong>
+                                    <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
+                                        @foreach (var item in proximosBanhos)
+                                        {
+                                            var diaSemana = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(item.DataReal.DayOfWeek);
+                                            <span>
+                                                Dia <strong>@item.DiaFixo</strong> →
+                                                <strong>@item.DataReal.ToString("dd/MM/yyyy")</strong>
+                                                (@diaSemana)
+                                                @if (item.Ajustado)
+                                                {
+                                                    <span style="color:#E8321A;font-weight:600">(ajustado de domingo)</span>
+                                                }
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
                         <div class="detail-field"><label>Taxidog</label><p>@Html.Raw(taxidogHtml)</p></div>
                         <div class="detail-field"><label>Tosa</label><p>@Html.Raw(tosaHtml)</p></div>
                         <div class="detail-field full"><label>Valor do Plano</label><p style="font-size:22px;font-weight:700;color:var(--red)">R$ @c.Valor.ToString("F2")</p></div>

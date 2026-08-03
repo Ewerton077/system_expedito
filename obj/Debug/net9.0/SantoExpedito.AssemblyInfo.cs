@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SantoExpedito")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1c4c1d76297f77b1f4d3ee0308c88ccee4a577b9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+361abd0d6d3a4a43b125cfc2ec39c5b0afc96751")]
 [assembly: System.Reflection.AssemblyProductAttribute("SantoExpedito")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SantoExpedito")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

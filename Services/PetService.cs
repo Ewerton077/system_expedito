@@ -59,4 +59,18 @@ public class PetService : IPetService
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task DeleteAsync(int id)
+    {
+        var pet = await _context.Pets.FindAsync(id);
+        if (pet != null)
+        {
+            var agendamentos = await _context.Agendamentos
+                .Where(a => a.Pet == pet.Nome && a.Tutor == pet.Tutor)
+                .ToListAsync();
+            _context.Agendamentos.RemoveRange(agendamentos);
+            _context.Pets.Remove(pet);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

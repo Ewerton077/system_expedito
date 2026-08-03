@@ -8,4 +8,5 @@ public interface IPetService
     Task<Pet?> GetByIdAsync(int id);
     Task CreateAsync(Pet pet);
     Task UpdateByClienteAsync(Cliente cliente);
+    Task DeleteAsync(int id);
 }

@@ -48,4 +48,12 @@ public class AgendamentosController : Controller
         await _agendamentoService.CriarBanhoUnicoAsync(tutor, endereco, telefone, petNome, data, horario);
         return Ok(new { message = "Banho único agendado com sucesso!" });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> LimparOrfaos()
+    {
+        var removidos = await _agendamentoService.RemoverOrfaosAsync();
+        return Ok(new { message = $"{removidos} agendamento(s) órfão(s) removido(s).", removidos });
+    }
 }

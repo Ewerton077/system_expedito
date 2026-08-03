@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rn1DdR0T0fI=",
+  "dgSpecHash": "KvaQfP7Ivl8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\alunobcc11\\Desktop\\SANTO_EX\\SE_System\\SantoExpedito.csproj",
+  "projectFilePath": "C:\\Users\\alunobcc11\\Downloads\\SANTO_EX-20260803T173535Z-1-001\\SANTO_EX\\SE_System\\SantoExpedito.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\alunobcc11\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\alunobcc11\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",

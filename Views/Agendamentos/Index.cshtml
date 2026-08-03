@@ -7,7 +7,10 @@
 <div class="page active" id="agendamentos">
     <div class="page-header">
         <h2>Agendamentos</h2>
-        <button class="btn-primary" id="btnBanhoUnico"><i class="ti ti-droplet"></i> Banho Único</button>
+        <div style="display:flex;gap:8px">
+            <button class="btn-primary" id="btnLimparOrfaos" style="background:var(--border);color:var(--text)"><i class="ti ti-broom"></i> Limpar Órfãos</button>
+            <button class="btn-primary" id="btnBanhoUnico"><i class="ti ti-droplet"></i> Banho Único</button>
+        </div>
     </div>
     <div class="agenda-container">
         <div class="card agenda-cal-card">
@@ -37,6 +40,7 @@
             </div>
             <div style="padding:22px">
                 <form id="formBanhoUnico">
+                    @Html.AntiForgeryToken()
                     <div style="display:flex;flex-direction:column;gap:16px">
                         <div style="display:flex;flex-direction:column;gap:4px">
                             <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase">Nome do Tutor</label>
@@ -350,10 +354,11 @@ document.getElementById('formBanhoUnico').addEventListener('submit', e => {
     const horario = document.getElementById('buHorario').value;
     if (!tutor || !endereco || !telefone || !petNome || !data || !horario) { alert('Preencha todos os campos.'); return; }
     const banhoUnicoUrl = '@Url.Action("BanhoUnico", "Agendamentos")';
+    const token = document.querySelector('#formBanhoUnico input[name="__RequestVerificationToken"]').value;
     fetch(banhoUnicoUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `tutor=${encodeURIComponent(tutor)}&endereco=${encodeURIComponent(endereco)}&telefone=${encodeURIComponent(telefone)}&petNome=${encodeURIComponent(petNome)}&data=${encodeURIComponent(data)}&horario=${encodeURIComponent(horario)}`
+        body: `__RequestVerificationToken=${encodeURIComponent(token)}&tutor=${encodeURIComponent(tutor)}&endereco=${encodeURIComponent(endereco)}&telefone=${encodeURIComponent(telefone)}&petNome=${encodeURIComponent(petNome)}&data=${encodeURIComponent(data)}&horario=${encodeURIComponent(horario)}`
     }).then(r => r.json()).then(data => {
         alert(data.message || 'Banho único agendado!');
         banhoUnicoModal.style.display = 'none';
@@ -362,5 +367,18 @@ document.getElementById('formBanhoUnico').addEventListener('submit', e => {
 });
 
 carregarAgendamentos();
+
+document.getElementById('btnLimparOrfaos').addEventListener('click', () => {
+    if (!confirm('Remover todos os agendamentos de pets que não existem mais?')) return;
+    const token = document.querySelector('#formBanhoUnico input[name="__RequestVerificationToken"]').value;
+    fetch('@Url.Action("LimparOrfaos","Agendamentos")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `__RequestVerificationToken=${encodeURIComponent(token)}`
+    }).then(r => r.json()).then(data => {
+        alert(data.message);
+        carregarAgendamentos();
+    }).catch(() => alert('Erro ao limpar agendamentos órfãos.'));
+});
 </script>
 }
