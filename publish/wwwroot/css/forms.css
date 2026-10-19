@@ -1,0 +1,76 @@
+.form-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); margin-bottom:20px; }
+.form-card-header{ padding:18px 22px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.form-card-header h2{ font-family:var(--font-title); font-size:16px; }
+.form-card-body{ padding:22px; }
+.form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-group{ display:flex; flex-direction:column; gap:5px; }
+.form-group.full{ grid-column:1 / -1; }
+.form-group label{ font-size:12px; font-weight:600; color:var(--text); }
+.form-group .label-optional{ font-weight:400; color:var(--text-muted); font-size:11px; }
+.form-control{ border:1.5px solid var(--border); background:var(--surface); border-radius:8px; padding:11px 14px; font-size:14px; color:var(--text); font-family:var(--font-body); transition:var(--transition); outline:none; }
+.form-control:focus{ border-color:var(--red); box-shadow:0 0 0 3px var(--red-light); }
+select.form-control{ appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A09890' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; cursor:pointer; }
+select.form-control option{ color:var(--text); background:var(--surface); }
+.form-control::placeholder{ color:var(--text-muted); }
+.form-control.is-valid{ border-color:#22c55e; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2322c55e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:36px; }
+.form-control.is-invalid{ border-color:#ef4444; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M15 9l-6 6'/%3E%3Cpath d='M9 9l6 6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:36px; }
+.cpf-feedback{ font-size:11px; min-height:16px; display:block; }
+.cpf-feedback.error{ color:#ef4444; }
+.cpf-feedback.success{ color:#22c55e; }
+.form-row{ display:flex; gap:12px; }
+.form-row .form-group{ flex:1; }
+.radio-group{ display:flex; gap:8px; }
+.radio-label{ flex:1; border:1.5px solid var(--border); border-radius:8px; padding:11px 14px; cursor:pointer; text-align:center; font-size:13px; font-weight:600; color:var(--text-secondary); transition:var(--transition); display:flex; align-items:center; justify-content:center; gap:6px; }
+.radio-label:hover{ border-color:var(--red-muted); color:var(--red); }
+.radio-label input{ display:none; }
+.radio-label:has(input:checked){ border-color:var(--red); background:var(--red-light); color:var(--red); }
+.pet-entry{ background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:18px; margin-bottom:12px; position:relative; }
+.pet-entry-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.pet-entry-header h3{ font-size:14px; color:var(--text); }
+.btn-remove-pet{ border:none; background:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:4px; border-radius:6px; transition:var(--transition); display:flex; align-items:center; }
+.btn-remove-pet:hover{ color:var(--red); background:var(--red-light); }
+.btn-add-pet{ border:1.5px dashed var(--border); background:none; width:100%; padding:14px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text-muted); display:flex; align-items:center; justify-content:center; gap:6px; transition:var(--transition); }
+.btn-add-pet:hover{ border-color:var(--red); color:var(--red); background:var(--red-light); }
+.form-actions{ display:flex; justify-content:flex-end; gap:12px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); }
+.checkbox-group-horizontal{ display:flex; gap:6px; flex-wrap:wrap; }
+.dia-checkbox{ border:1.5px solid var(--border); border-radius:8px; padding:8px 12px; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-secondary); transition:var(--transition); user-select:none; display:flex; align-items:center; gap:4px; }
+.dia-checkbox:hover{ border-color:var(--red-muted); color:var(--red); }
+.dia-checkbox input{ display:none; }
+.dia-checkbox:has(input:checked){ border-color:var(--red); background:var(--red-light); color:var(--red); }
+.field-hint{ font-size:11px; color:var(--text-muted); margin-top:-2px; }
+.mini-calendar{ border:1.5px solid var(--border); border-radius:8px; overflow:hidden; margin-top:4px; }
+.mini-cal-header{ display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); background:var(--surface-2); }
+.mini-cal-title{ font-size:13px; font-weight:700; color:var(--text); }
+.mini-cal-nav{ border:none; background:none; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); transition:var(--transition); font-size:16px; }
+.mini-cal-nav:hover{ background:var(--red-light); color:var(--red); }
+.mini-cal-dias-semana{ display:grid; grid-template-columns:repeat(7,1fr); padding:6px 8px 4px; text-align:center; font-size:10px; font-weight:600; text-transform:uppercase; color:var(--text-muted); }
+.mini-cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); padding:2px 8px 10px; gap:2px; }
+.mini-cal-dia{ aspect-ratio:1; border:none; background:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; color:var(--text); display:flex; align-items:center; justify-content:center; transition:var(--transition); }
+.mini-cal-dia:hover:not(.outro-mes):not(:disabled){ background:var(--red-light); color:var(--red); }
+.mini-cal-dia.outro-mes{ color:var(--text-muted); opacity:.3; }
+.mini-cal-dia.selected{ background:var(--red); color:white; font-weight:700; }
+.mini-cal-dia.selected:hover{ background:var(--red-dark); }
+.mini-cal-dia:disabled:not(.selected){ opacity:.35; cursor:default; }
+.mini-cal-info{ font-size:12px; color:var(--text-muted); margin-top:6px; text-align:center; }
+.mini-cal-info strong{ color:var(--red); }
+
+.datepicker-group{ position:relative; }
+.datepicker-wrapper{ position:relative; display:flex; }
+.datepicker-wrapper .datepicker-input{ flex:1; cursor:pointer; padding-right:40px; }
+.datepicker-trigger{ position:absolute; right:2px; top:2px; bottom:2px; width:36px; border:none; background:none; border-radius:0 6px 6px 0; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-muted); transition:var(--transition); }
+.datepicker-trigger:hover{ color:var(--red); background:var(--red-light); }
+.datepicker-popup{ position:absolute; top:calc(100% + 4px); left:0; z-index:100; background:var(--surface); border:1.5px solid var(--border); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.12); width:260px; padding:8px; }
+.datepicker-popup .dp-header{ display:flex; align-items:center; justify-content:space-between; padding:4px 4px 8px; }
+.datepicker-popup .dp-title{ font-size:13px; font-weight:700; color:var(--text); }
+.datepicker-popup .dp-nav{ border:none; background:none; width:28px; height:28px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); transition:var(--transition); }
+.datepicker-popup .dp-nav:hover{ background:var(--red-light); color:var(--red); }
+.datepicker-popup .dp-dias-semana{ display:grid; grid-template-columns:repeat(7,1fr); padding:2px 2px 4px; text-align:center; font-size:10px; font-weight:600; text-transform:uppercase; color:var(--text-muted); }
+.datepicker-popup .dp-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.datepicker-popup .dp-dia{ aspect-ratio:1; border:none; background:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; color:var(--text); display:flex; align-items:center; justify-content:center; transition:var(--transition); }
+.datepicker-popup .dp-dia:hover:not(.outro-mes){ background:var(--red-light); color:var(--red); }
+.datepicker-popup .dp-dia.outro-mes{ color:var(--text-muted); opacity:.3; }
+.datepicker-popup .dp-dia.selected{ background:var(--red); color:white; font-weight:700; }
+.datepicker-popup .dp-dia.selected:hover{ background:var(--red-dark); }
+.datepicker-popup .dp-footer{ display:flex; justify-content:center; padding-top:6px; border-top:1px solid var(--border); margin-top:4px; }
+.datepicker-popup .dp-limpar{ border:none; background:none; font-size:11px; font-weight:600; color:var(--text-muted); cursor:pointer; padding:4px 12px; border-radius:6px; transition:var(--transition); }
+.datepicker-popup .dp-limpar:hover{ color:var(--red); background:var(--red-light); }

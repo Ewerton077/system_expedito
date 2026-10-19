@@ -23,14 +23,6 @@
                        value="@searchTerm"
                        oninput="filterClientes(this.value)">
             </div>
-            <form method="post" action="@Url.Action("GerarMock","Clientes")" style="display:inline" onsubmit="return confirm('Gerar 300 clientes mock com 3 pets cada?')">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn-mock"><i class="ti ti-adjustments"></i> Gerar 300 Mock</button>
-            </form>
-            <form method="post" action="@Url.Action("LimparMock","Clientes")" style="display:inline" onsubmit="return confirm('Remover todos os clientes mock?')">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn-mock-clean"><i class="ti ti-trash"></i> Limpar Mock</button>
-            </form>
             <a class="btn-primary" href="@Url.Action("Index","Cadastro")">
                 <i class="ti ti-plus"></i> Novo Cliente
             </a>

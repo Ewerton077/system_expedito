@@ -61,7 +61,7 @@ public class CadastroService : ICadastroService
                 Email = model.Responsavel.Email,
                 Cep = model.Responsavel.Cep,
                 PetIdade = pet.Idade,
-                DataCadastro = DateTime.Now
+                DataCadastro = DateTime.UtcNow
             };
             _context.Clientes.Add(cliente);
 

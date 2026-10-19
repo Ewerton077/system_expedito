@@ -2817,31 +2817,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\alunobcc09\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/root/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\alunobcc09\\Desktop\\secret\\system_expedito\\SantoExpedito.csproj",
+      "projectUniqueName": "/root/Desktop/system_expedito/SantoExpedito.csproj",
       "projectName": "SantoExpedito",
-      "projectPath": "C:\\Users\\alunobcc09\\Desktop\\secret\\system_expedito\\SantoExpedito.csproj",
-      "packagesPath": "C:\\Users\\alunobcc09\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\alunobcc09\\Desktop\\secret\\system_expedito\\obj\\",
+      "projectPath": "/root/Desktop/system_expedito/SantoExpedito.csproj",
+      "packagesPath": "/root/.nuget/packages/",
+      "outputPath": "/root/Desktop/system_expedito/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\alunobcc09\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/root/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2900,7 +2893,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/root/.dotnet/sdk/9.0.318/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

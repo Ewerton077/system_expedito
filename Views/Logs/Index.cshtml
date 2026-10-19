@@ -1,0 +1,38 @@
+@{
+    ViewBag.Title = "Logs do Sistema";
+}
+
+<link rel="stylesheet" href="~/css/forms.css">
+
+<div class="page active">
+    <div class="page-header">
+        <h2>Logs do Sistema</h2>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Nível</th>
+                    <th>Usuário</th>
+                    <th>Endpoint</th>
+                    <th>Mensagem</th>
+                    <th>Detalhes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td>@log.Data.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td><span class="badge @(log.Nivel == "Error" ? "badge-error" : "badge-info")">@log.Nivel</span></td>
+                        <td>@log.Usuario ?? "-"</td>
+                        <td>@log.Endpoint ?? "-"</td>
+                        <td>@log.Mensagem</td>
+                        <td>@log.Detalhes ?? "-"</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

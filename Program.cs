@@ -1,5 +1,8 @@
 using System.Security.Cryptography;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HostFiltering;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using SantoExpedito.Data;
@@ -11,6 +14,17 @@ using SantoExpedito.Services.RegrasAgendamento;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = null;
+});
+
+builder.Services.Configure<HostFilteringOptions>(options =>
+{
+    options.AllowedHosts.Clear();
+    options.AllowedHosts.Add("*");
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? Environment.GetEnvironmentVariable("DATABASE_URL")
@@ -37,6 +51,22 @@ builder.Services.AddAntiforgery(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddMemoryCache();
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User?.Identity?.IsAuthenticated == true ? httpContext.User.Identity.Name : httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+});
+
+builder.Services.AddScoped<ILogService, LogService>();
+
 builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
 
 builder.Services.AddScoped<ICpfEncryptionService, CpfEncryptionService>();
@@ -105,6 +135,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.Use(async (ctx, next) =>
 {
@@ -116,10 +147,25 @@ app.Use(async (ctx, next) =>
 });
 
 app.UseRateLimiter();
+app.UseHostFiltering();
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var logService = context.RequestServices.GetRequiredService<ILogService>();
+        await logService.RegistrarAsync("Error", ex.Message, ex.StackTrace, context.User?.Identity?.Name, context.Request.Path);
+        throw;
+    }
+});
 
 app.MapControllerRoute(
     name: "default",

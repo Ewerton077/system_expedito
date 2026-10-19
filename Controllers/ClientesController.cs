@@ -28,7 +28,7 @@ public class ClientesController : Controller
         ViewBag.SearchTerm = search;
         ViewBag.Clientes = clientes;
 
-        var agora = DateTime.Now;
+        var agora = DateTime.UtcNow;
         var todosAgendamentos = await _agendamentoService.GetAllAsync();
         var banhosRestantesDict = new Dictionary<int, int>();
         foreach (var c in clientes)
@@ -59,7 +59,7 @@ public class ClientesController : Controller
                     var partes = (vencimentoAtual.VencimentoData ?? "").Split('/');
                     if (partes.Length == 3 && DateTime.TryParse($"{partes[2]}-{partes[1]}-{partes[0]}", out var dataVenc))
                     {
-                        var diasRestantes = (dataVenc.Date - DateTime.Now.Date).Days;
+                        var diasRestantes = (dataVenc.Date - DateTime.UtcNow.Date).Days;
                         ViewBag.DataVencimento = dataVenc;
                         ViewBag.DiasRestantes = diasRestantes;
                         ViewBag.PlanoVencido = diasRestantes < 0;
@@ -101,7 +101,7 @@ public class ClientesController : Controller
                 PetAntipulgas = petAntipulgas, PetVacinacao = petVacinacao,
                 Cpf = cpf, Email = email, PetIdade = petIdade, Cep = cep,
                 DatasBanho = datasBanho,
-                DataCadastro = DateTime.Now
+                DataCadastro = DateTime.UtcNow
             });
         }
         else
@@ -129,29 +129,6 @@ public class ClientesController : Controller
     public async Task<IActionResult> Excluir(int id)
     {
         await _clienteService.DeleteAsync(id);
-        return RedirectToAction("Index");
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "SuperAdmin")]
-    public async Task<IActionResult> GerarMock()
-    {
-        var msg = await _clienteService.GerarMockDataAsync();
-        TempData["MockMessage"] = msg;
-        return RedirectToAction("Index");
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "SuperAdmin")]
-    public async Task<IActionResult> LimparMock()
-    {
-        var count = await _clienteService.LimparMockDataAsync();
-        if (count > 0)
-            TempData["MockMessage"] = $"Removidos {count} clientes mock.";
-        else
-            TempData["MockMessage"] = "Nenhum cliente mock encontrado.";
         return RedirectToAction("Index");
     }
 }
